@@ -53,6 +53,7 @@
 		01DA041B242DF1CD00509DB3 /* JFKMahjongUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = JFKMahjongUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		01DA041F242DF1CD00509DB3 /* JFKMahjongUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JFKMahjongUITests.swift; sourceTree = "<group>"; };
 		01DA0421242DF1CD00509DB3 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		01E029CF242DF5E500666B41 /* JFKMahjong.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = JFKMahjong.entitlements; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -103,6 +104,7 @@
 		01DA03F8242DF1CC00509DB3 /* JFKMahjong */ = {
 			isa = PBXGroup;
 			children = (
+				01E029CF242DF5E500666B41 /* JFKMahjong.entitlements */,
 				01DA03F9242DF1CC00509DB3 /* AppDelegate.swift */,
 				01DA03FB242DF1CC00509DB3 /* GameScene.sks */,
 				01DA03FD242DF1CC00509DB3 /* Actions.sks */,
@@ -442,6 +444,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = JFKMahjong/JFKMahjong.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = X93TV8Q2X5;
 				INFOPLIST_FILE = JFKMahjong/Info.plist;
@@ -451,6 +454,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.qianmeitech.JFKMahjong;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTS_MACCATALYST = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
@@ -460,6 +464,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = JFKMahjong/JFKMahjong.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = X93TV8Q2X5;
 				INFOPLIST_FILE = JFKMahjong/Info.plist;
@@ -469,6 +474,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.qianmeitech.JFKMahjong;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTS_MACCATALYST = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
