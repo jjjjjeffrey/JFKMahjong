@@ -3,10 +3,16 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 50;
+	objectVersion = 52;
 	objects = {
 
 /* Begin PBXBuildFile section */
+		01069744243D95AB00874495 /* GameLaunchScene.sks in Resources */ = {isa = PBXBuildFile; fileRef = 01069743243D95AB00874495 /* GameLaunchScene.sks */; };
+		01069748243D95F200874495 /* GameLaunchScene.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01069747243D95F200874495 /* GameLaunchScene.swift */; };
+		0106974B243D989500874495 /* GuanNanMahjongScene.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0106974A243D989500874495 /* GuanNanMahjongScene.swift */; };
+		0106974D243D98AA00874495 /* GuanNanMahjongScene.sks in Resources */ = {isa = PBXBuildFile; fileRef = 0106974C243D98AA00874495 /* GuanNanMahjongScene.sks */; };
+		01B87628243D918300C56B83 /* GameHallScene.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01B87627243D918300C56B83 /* GameHallScene.swift */; };
+		01B8762B243D91CA00C56B83 /* GameHallScene.sks in Resources */ = {isa = PBXBuildFile; fileRef = 01B8762A243D91CA00C56B83 /* GameHallScene.sks */; };
 		01DA03FA242DF1CC00509DB3 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01DA03F9242DF1CC00509DB3 /* AppDelegate.swift */; };
 		01DA03FC242DF1CC00509DB3 /* GameScene.sks in Resources */ = {isa = PBXBuildFile; fileRef = 01DA03FB242DF1CC00509DB3 /* GameScene.sks */; };
 		01DA03FE242DF1CC00509DB3 /* Actions.sks in Resources */ = {isa = PBXBuildFile; fileRef = 01DA03FD242DF1CC00509DB3 /* Actions.sks */; };
@@ -17,6 +23,7 @@
 		01DA040A242DF1CD00509DB3 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 01DA0408242DF1CD00509DB3 /* LaunchScreen.storyboard */; };
 		01DA0415242DF1CD00509DB3 /* JFKMahjongTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01DA0414242DF1CD00509DB3 /* JFKMahjongTests.swift */; };
 		01DA0420242DF1CD00509DB3 /* JFKMahjongUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01DA041F242DF1CD00509DB3 /* JFKMahjongUITests.swift */; };
+		01E029D2242DFB7200666B41 /* Alamofire in Frameworks */ = {isa = PBXBuildFile; productRef = 01E029D1242DFB7200666B41 /* Alamofire */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -37,6 +44,12 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		01069743243D95AB00874495 /* GameLaunchScene.sks */ = {isa = PBXFileReference; lastKnownFileType = file.sks; path = GameLaunchScene.sks; sourceTree = "<group>"; };
+		01069747243D95F200874495 /* GameLaunchScene.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameLaunchScene.swift; sourceTree = "<group>"; };
+		0106974A243D989500874495 /* GuanNanMahjongScene.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GuanNanMahjongScene.swift; sourceTree = "<group>"; };
+		0106974C243D98AA00874495 /* GuanNanMahjongScene.sks */ = {isa = PBXFileReference; lastKnownFileType = file.sks; path = GuanNanMahjongScene.sks; sourceTree = "<group>"; };
+		01B87627243D918300C56B83 /* GameHallScene.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameHallScene.swift; sourceTree = "<group>"; };
+		01B8762A243D91CA00C56B83 /* GameHallScene.sks */ = {isa = PBXFileReference; lastKnownFileType = file.sks; path = GameHallScene.sks; sourceTree = "<group>"; };
 		01DA03F6242DF1CC00509DB3 /* JFKMahjong.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = JFKMahjong.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		01DA03F9242DF1CC00509DB3 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		01DA03FB242DF1CC00509DB3 /* GameScene.sks */ = {isa = PBXFileReference; lastKnownFileType = file.sks; path = GameScene.sks; sourceTree = "<group>"; };
@@ -61,6 +74,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				01E029D2242DFB7200666B41 /* Alamofire in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -81,6 +95,33 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		01069742243D958900874495 /* GameLaunchScene */ = {
+			isa = PBXGroup;
+			children = (
+				01069747243D95F200874495 /* GameLaunchScene.swift */,
+				01069743243D95AB00874495 /* GameLaunchScene.sks */,
+			);
+			path = GameLaunchScene;
+			sourceTree = "<group>";
+		};
+		01069749243D983700874495 /* GuanNanMahjongScene */ = {
+			isa = PBXGroup;
+			children = (
+				0106974A243D989500874495 /* GuanNanMahjongScene.swift */,
+				0106974C243D98AA00874495 /* GuanNanMahjongScene.sks */,
+			);
+			path = GuanNanMahjongScene;
+			sourceTree = "<group>";
+		};
+		01B87629243D919500C56B83 /* GameHallScene */ = {
+			isa = PBXGroup;
+			children = (
+				01B87627243D918300C56B83 /* GameHallScene.swift */,
+				01B8762A243D91CA00C56B83 /* GameHallScene.sks */,
+			);
+			path = GameHallScene;
+			sourceTree = "<group>";
+		};
 		01DA03ED242DF1CC00509DB3 = {
 			isa = PBXGroup;
 			children = (
@@ -110,6 +151,9 @@
 				01DA03FD242DF1CC00509DB3 /* Actions.sks */,
 				01DA03FF242DF1CC00509DB3 /* GameScene.swift */,
 				01DA0401242DF1CC00509DB3 /* GameViewController.swift */,
+				01069742243D958900874495 /* GameLaunchScene */,
+				01B87629243D919500C56B83 /* GameHallScene */,
+				01069749243D983700874495 /* GuanNanMahjongScene */,
 				01DA0403242DF1CC00509DB3 /* Main.storyboard */,
 				01DA0406242DF1CD00509DB3 /* Assets.xcassets */,
 				01DA0408242DF1CD00509DB3 /* LaunchScreen.storyboard */,
@@ -152,6 +196,9 @@
 			dependencies = (
 			);
 			name = JFKMahjong;
+			packageProductDependencies = (
+				01E029D1242DFB7200666B41 /* Alamofire */,
+			);
 			productName = JFKMahjong;
 			productReference = 01DA03F6242DF1CC00509DB3 /* JFKMahjong.app */;
 			productType = "com.apple.product-type.application";
@@ -224,6 +271,9 @@
 				Base,
 			);
 			mainGroup = 01DA03ED242DF1CC00509DB3;
+			packageReferences = (
+				01E029D0242DFB7200666B41 /* XCRemoteSwiftPackageReference "Alamofire" */,
+			);
 			productRefGroup = 01DA03F7242DF1CC00509DB3 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -240,9 +290,12 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				0106974D243D98AA00874495 /* GuanNanMahjongScene.sks in Resources */,
+				01069744243D95AB00874495 /* GameLaunchScene.sks in Resources */,
 				01DA0405242DF1CC00509DB3 /* Main.storyboard in Resources */,
 				01DA03FC242DF1CC00509DB3 /* GameScene.sks in Resources */,
 				01DA0407242DF1CD00509DB3 /* Assets.xcassets in Resources */,
+				01B8762B243D91CA00C56B83 /* GameHallScene.sks in Resources */,
 				01DA040A242DF1CD00509DB3 /* LaunchScreen.storyboard in Resources */,
 				01DA03FE242DF1CC00509DB3 /* Actions.sks in Resources */,
 			);
@@ -271,7 +324,10 @@
 			files = (
 				01DA0400242DF1CC00509DB3 /* GameScene.swift in Sources */,
 				01DA0402242DF1CC00509DB3 /* GameViewController.swift in Sources */,
+				0106974B243D989500874495 /* GuanNanMahjongScene.swift in Sources */,
 				01DA03FA242DF1CC00509DB3 /* AppDelegate.swift in Sources */,
+				01B87628243D918300C56B83 /* GameHallScene.swift in Sources */,
+				01069748243D95F200874495 /* GameLaunchScene.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -604,6 +660,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		01E029D0242DFB7200666B41 /* XCRemoteSwiftPackageReference "Alamofire" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/Alamofire/Alamofire";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 5.0.5;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		01E029D1242DFB7200666B41 /* Alamofire */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 01E029D0242DFB7200666B41 /* XCRemoteSwiftPackageReference "Alamofire" */;
+			productName = Alamofire;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 01DA03EE242DF1CC00509DB3 /* Project object */;
 }
