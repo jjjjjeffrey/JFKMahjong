@@ -7,8 +7,22 @@
 //
 
 import SpriteKit
+import Combine
 
-class GameHallScene: SKScene {
+class GameHallScene: JKScene {
+    
+    var startButtonClicked = PassthroughSubject<Void, Never>()
+    
+    override func didMove(to view: SKView) {
+        let startButton = JKButtonNode()
+        startButton.setTitle("开始游戏", for: .normal)
+        startButton.position = CGPoint(x: view.width/2,
+                                      y:view.height/2)
+        startButton.clicked.sink { [weak self] in
+            self?.startButtonClicked.send()
+        }.store(in: &cancellables)
+        addChild(startButton)
+    }
 
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         
@@ -19,17 +33,7 @@ class GameHallScene: SKScene {
     }
     
     override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
-        for touch in touches {
-             let location = touch.location(in: self)
-             let touchedNode = atPoint(location)
-             if touchedNode.name == "start" {
-                  print("start")
-             }
-            if touchedNode.name == "start", let scene = SKScene(fileNamed: "GuanNanMahjongScene") {
-               let transition = SKTransition.flipVertical(withDuration: 1)
-               view?.presentScene(scene, transition: transition)
-            }
-        }
+        
     }
     
     override func touchesCancelled(_ touches: Set<UITouch>, with event: UIEvent?) {

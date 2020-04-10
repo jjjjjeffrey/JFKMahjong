@@ -7,12 +7,14 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		01069744243D95AB00874495 /* GameLaunchScene.sks in Resources */ = {isa = PBXBuildFile; fileRef = 01069743243D95AB00874495 /* GameLaunchScene.sks */; };
 		01069748243D95F200874495 /* GameLaunchScene.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01069747243D95F200874495 /* GameLaunchScene.swift */; };
 		0106974B243D989500874495 /* GuanNanMahjongScene.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0106974A243D989500874495 /* GuanNanMahjongScene.swift */; };
-		0106974D243D98AA00874495 /* GuanNanMahjongScene.sks in Resources */ = {isa = PBXBuildFile; fileRef = 0106974C243D98AA00874495 /* GuanNanMahjongScene.sks */; };
+		0106974F243EE73300874495 /* MahjongTile.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0106974E243EE73300874495 /* MahjongTile.swift */; };
+		013F048E243F01FC000662A3 /* JKButtonNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 013F048D243F01FC000662A3 /* JKButtonNode.swift */; };
+		016321042440129B00788C24 /* JKScene.swift in Sources */ = {isa = PBXBuildFile; fileRef = 016321032440129B00788C24 /* JKScene.swift */; };
+		016321062440136700788C24 /* SKView+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 016321052440136700788C24 /* SKView+Extensions.swift */; };
+		01632108244015D400788C24 /* JKViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01632107244015D400788C24 /* JKViewController.swift */; };
 		01B87628243D918300C56B83 /* GameHallScene.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01B87627243D918300C56B83 /* GameHallScene.swift */; };
-		01B8762B243D91CA00C56B83 /* GameHallScene.sks in Resources */ = {isa = PBXBuildFile; fileRef = 01B8762A243D91CA00C56B83 /* GameHallScene.sks */; };
 		01DA03FA242DF1CC00509DB3 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01DA03F9242DF1CC00509DB3 /* AppDelegate.swift */; };
 		01DA03FC242DF1CC00509DB3 /* GameScene.sks in Resources */ = {isa = PBXBuildFile; fileRef = 01DA03FB242DF1CC00509DB3 /* GameScene.sks */; };
 		01DA03FE242DF1CC00509DB3 /* Actions.sks in Resources */ = {isa = PBXBuildFile; fileRef = 01DA03FD242DF1CC00509DB3 /* Actions.sks */; };
@@ -44,12 +46,14 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		01069743243D95AB00874495 /* GameLaunchScene.sks */ = {isa = PBXFileReference; lastKnownFileType = file.sks; path = GameLaunchScene.sks; sourceTree = "<group>"; };
 		01069747243D95F200874495 /* GameLaunchScene.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameLaunchScene.swift; sourceTree = "<group>"; };
 		0106974A243D989500874495 /* GuanNanMahjongScene.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GuanNanMahjongScene.swift; sourceTree = "<group>"; };
-		0106974C243D98AA00874495 /* GuanNanMahjongScene.sks */ = {isa = PBXFileReference; lastKnownFileType = file.sks; path = GuanNanMahjongScene.sks; sourceTree = "<group>"; };
+		0106974E243EE73300874495 /* MahjongTile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MahjongTile.swift; sourceTree = "<group>"; };
+		013F048D243F01FC000662A3 /* JKButtonNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JKButtonNode.swift; sourceTree = "<group>"; };
+		016321032440129B00788C24 /* JKScene.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JKScene.swift; sourceTree = "<group>"; };
+		016321052440136700788C24 /* SKView+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SKView+Extensions.swift"; sourceTree = "<group>"; };
+		01632107244015D400788C24 /* JKViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JKViewController.swift; sourceTree = "<group>"; };
 		01B87627243D918300C56B83 /* GameHallScene.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameHallScene.swift; sourceTree = "<group>"; };
-		01B8762A243D91CA00C56B83 /* GameHallScene.sks */ = {isa = PBXFileReference; lastKnownFileType = file.sks; path = GameHallScene.sks; sourceTree = "<group>"; };
 		01DA03F6242DF1CC00509DB3 /* JFKMahjong.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = JFKMahjong.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		01DA03F9242DF1CC00509DB3 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		01DA03FB242DF1CC00509DB3 /* GameScene.sks */ = {isa = PBXFileReference; lastKnownFileType = file.sks; path = GameScene.sks; sourceTree = "<group>"; };
@@ -99,7 +103,6 @@
 			isa = PBXGroup;
 			children = (
 				01069747243D95F200874495 /* GameLaunchScene.swift */,
-				01069743243D95AB00874495 /* GameLaunchScene.sks */,
 			);
 			path = GameLaunchScene;
 			sourceTree = "<group>";
@@ -108,16 +111,26 @@
 			isa = PBXGroup;
 			children = (
 				0106974A243D989500874495 /* GuanNanMahjongScene.swift */,
-				0106974C243D98AA00874495 /* GuanNanMahjongScene.sks */,
 			);
 			path = GuanNanMahjongScene;
+			sourceTree = "<group>";
+		};
+		0163210924401AC700788C24 /* Base */ = {
+			isa = PBXGroup;
+			children = (
+				01632107244015D400788C24 /* JKViewController.swift */,
+				0106974E243EE73300874495 /* MahjongTile.swift */,
+				013F048D243F01FC000662A3 /* JKButtonNode.swift */,
+				016321032440129B00788C24 /* JKScene.swift */,
+				016321052440136700788C24 /* SKView+Extensions.swift */,
+			);
+			path = Base;
 			sourceTree = "<group>";
 		};
 		01B87629243D919500C56B83 /* GameHallScene */ = {
 			isa = PBXGroup;
 			children = (
 				01B87627243D918300C56B83 /* GameHallScene.swift */,
-				01B8762A243D91CA00C56B83 /* GameHallScene.sks */,
 			);
 			path = GameHallScene;
 			sourceTree = "<group>";
@@ -151,6 +164,7 @@
 				01DA03FD242DF1CC00509DB3 /* Actions.sks */,
 				01DA03FF242DF1CC00509DB3 /* GameScene.swift */,
 				01DA0401242DF1CC00509DB3 /* GameViewController.swift */,
+				0163210924401AC700788C24 /* Base */,
 				01069742243D958900874495 /* GameLaunchScene */,
 				01B87629243D919500C56B83 /* GameHallScene */,
 				01069749243D983700874495 /* GuanNanMahjongScene */,
@@ -290,12 +304,9 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				0106974D243D98AA00874495 /* GuanNanMahjongScene.sks in Resources */,
-				01069744243D95AB00874495 /* GameLaunchScene.sks in Resources */,
 				01DA0405242DF1CC00509DB3 /* Main.storyboard in Resources */,
 				01DA03FC242DF1CC00509DB3 /* GameScene.sks in Resources */,
 				01DA0407242DF1CD00509DB3 /* Assets.xcassets in Resources */,
-				01B8762B243D91CA00C56B83 /* GameHallScene.sks in Resources */,
 				01DA040A242DF1CD00509DB3 /* LaunchScreen.storyboard in Resources */,
 				01DA03FE242DF1CC00509DB3 /* Actions.sks in Resources */,
 			);
@@ -324,10 +335,15 @@
 			files = (
 				01DA0400242DF1CC00509DB3 /* GameScene.swift in Sources */,
 				01DA0402242DF1CC00509DB3 /* GameViewController.swift in Sources */,
+				016321062440136700788C24 /* SKView+Extensions.swift in Sources */,
+				016321042440129B00788C24 /* JKScene.swift in Sources */,
 				0106974B243D989500874495 /* GuanNanMahjongScene.swift in Sources */,
 				01DA03FA242DF1CC00509DB3 /* AppDelegate.swift in Sources */,
+				013F048E243F01FC000662A3 /* JKButtonNode.swift in Sources */,
+				0106974F243EE73300874495 /* MahjongTile.swift in Sources */,
 				01B87628243D918300C56B83 /* GameHallScene.swift in Sources */,
 				01069748243D95F200874495 /* GameLaunchScene.swift in Sources */,
+				01632108244015D400788C24 /* JKViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
