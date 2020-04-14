@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		010609CD24458F3A004DB34D /* MahjongTable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 010609CC24458F3A004DB34D /* MahjongTable.swift */; };
 		01069748243D95F200874495 /* GameLaunchScene.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01069747243D95F200874495 /* GameLaunchScene.swift */; };
 		0106974B243D989500874495 /* GuanNanMahjongScene.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0106974A243D989500874495 /* GuanNanMahjongScene.swift */; };
 		0106974F243EE73300874495 /* MahjongTile.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0106974E243EE73300874495 /* MahjongTile.swift */; };
@@ -46,6 +47,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		010609CC24458F3A004DB34D /* MahjongTable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MahjongTable.swift; sourceTree = "<group>"; };
 		01069747243D95F200874495 /* GameLaunchScene.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameLaunchScene.swift; sourceTree = "<group>"; };
 		0106974A243D989500874495 /* GuanNanMahjongScene.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GuanNanMahjongScene.swift; sourceTree = "<group>"; };
 		0106974E243EE73300874495 /* MahjongTile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MahjongTile.swift; sourceTree = "<group>"; };
@@ -123,6 +125,7 @@
 				013F048D243F01FC000662A3 /* JKButtonNode.swift */,
 				016321032440129B00788C24 /* JKScene.swift */,
 				016321052440136700788C24 /* SKView+Extensions.swift */,
+				010609CC24458F3A004DB34D /* MahjongTable.swift */,
 			);
 			path = Base;
 			sourceTree = "<group>";
@@ -342,6 +345,7 @@
 				013F048E243F01FC000662A3 /* JKButtonNode.swift in Sources */,
 				0106974F243EE73300874495 /* MahjongTile.swift in Sources */,
 				01B87628243D918300C56B83 /* GameHallScene.swift in Sources */,
+				010609CD24458F3A004DB34D /* MahjongTable.swift in Sources */,
 				01069748243D95F200874495 /* GameLaunchScene.swift in Sources */,
 				01632108244015D400788C24 /* JKViewController.swift in Sources */,
 			);

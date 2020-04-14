@@ -9,45 +9,29 @@
 import SpriteKit
 import Combine
 
-class Die {
-    var value: Int = 1
-    func throwMe() {
-        value = [1, 2, 3, 4, 5, 6].shuffled().first!
-    }
-}
-
-class MahjongTable {
-    
-    let dies = [Die(), Die()]
-    
-    func throwDies() {
-        dies.forEach { (die) in
-            die.throwMe()
-        }
-        print("骰子: \(dies[0].value) \(dies[1].value)")
-    }
-    
-}
-
-
 class GuanNanMahjongScene: JKScene {
     
     let table = MahjongTable()
     
     var exitButtonClicked = PassthroughSubject<Void, Never>()
     
+    var currentUserWind: MahjongTile.Wind?
+    
+    var myTiles: [MahjongTile] = []
+    
     override func sceneDidLoad() {
-        
-        let tiles = self.tiles
-        print("共 \(tiles.count) 张牌")
-        for tile in tiles {
-            print(tile)
+        do {
+            currentUserWind = try joinGame()
+        } catch {
+            print("\(error.localizedDescription)")
         }
-        
-        startGame()
     }
     
     override func didMove(to view: SKView) {
+        
+        if currentUserWind != nil {
+            startGame()
+        }
         
         let backButton = JKButtonNode()
         backButton.setTitle("退出", for: .normal)
@@ -56,21 +40,6 @@ class GuanNanMahjongScene: JKScene {
             self?.exitButtonClicked.send()
         }.store(in: &cancellables)
         addChild(backButton)
-        
-        
-        
-        let tileWidth = (frame.width-view.safeAreaLeft-view.safeAreaRight)/18
-        let tileHeight = 194/128*tileWidth
-        let leftBegin = tileWidth/2+view.safeAreaLeft+tileWidth*2
-        let bottomBegin = view.safeAreaBottom+tileHeight/2
-
-        let myTiles = tiles[0..<14]
-        for (i,tile) in myTiles.enumerated() {
-            let tileNode = SKSpriteNode(imageNamed: tile.imageName)
-            tileNode.size = CGSize(width: tileWidth, height: tileHeight)
-            tileNode.position = CGPoint(x: leftBegin+CGFloat(i)*tileWidth, y: bottomBegin)
-            addChild(tileNode)
-        }
     }
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
@@ -89,22 +58,50 @@ class GuanNanMahjongScene: JKScene {
         
     }
     
-    func startGame() {
-        table.throwDies()
+    //加入游戏
+    func joinGame() throws -> MahjongTile.Wind {
+        //上桌
+        return try table.join()
     }
     
-    private var tiles: [MahjongTile] {
-        get {
-            var tiles: [MahjongTile] = []
-            for rank in MahjongTile.Rank.allCases {
-                for i in 0..<9 {
-                    tiles.append(contentsOf: [.rank(i+1, rank), .rank(i+1, rank), .rank(i+1, rank), .rank(i+1, rank)])
-                }
+    func startGame() {
+        
+        //洗牌
+        table.shufflingTheTiles()
+        //确定庄家
+        table.confirmDealer()
+        //掷骰子确定抓牌位置
+        table.throwDies()
+        //发牌
+        table.deal()
+        
+        let tileWidth = (frame.width-view!.safeAreaLeft-view!.safeAreaRight)/18
+        let tileHeight = 194/128*tileWidth
+        let leftBegin = tileWidth/2+view!.safeAreaLeft+tileWidth*2
+        let bottomBegin = view!.safeAreaBottom+tileHeight/2
+
+        getMyTiles()
+        sortMyTiles()
+        
+        for (i,tile) in myTiles.enumerated() {
+            var left = leftBegin+CGFloat(i)*tileWidth
+            if i == 13 {
+                left += 10
             }
-            for wind in MahjongTile.Wind.allCases {
-                tiles.append(contentsOf: [.wind(wind), .wind(wind), .wind(wind), .wind(wind)])
-            }
-            return tiles.shuffled()
+            let tileNode = SKSpriteNode(imageNamed: tile.imageName)
+            tileNode.size = CGSize(width: tileWidth, height: tileHeight)
+            tileNode.position = CGPoint(x: left, y: bottomBegin)
+            addChild(tileNode)
         }
+    }
+    
+    func getMyTiles() {
+        if let userWind = currentUserWind {
+            myTiles = table.getMyTiles(userWind)
+        }
+    }
+    
+    func sortMyTiles() {
+        myTiles = myTiles.sort()
     }
 }
