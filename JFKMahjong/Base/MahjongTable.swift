@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import Combine
 
 class Die {
     var value: Int = 1
@@ -18,7 +19,14 @@ class Die {
 class MahjongTable {
     
     let dies = [Die(), Die()]
-    var seatsRemaining: [MahjongTile.Wind] = [.east, .south, .west, .north]
+    var seats: [MahjongTile.Wind] = [.east, .south, .west, .north] {
+        didSet {
+            isFull.send(seats.isEmpty)
+        }
+    }
+    var gamers: [Gamer] = []
+    
+    var isFull = PassthroughSubject<Bool, Never>()
     
     //牌墙
     private var tilesWall: [MahjongTile.Wind: [MahjongTile]] = [:]
@@ -32,12 +40,12 @@ class MahjongTable {
     private(set) var dealer: MahjongTile.Wind = .east
     
     //上桌
-    func join() throws -> MahjongTile.Wind {
-        if seatsRemaining.count > 0 {
-            return seatsRemaining.remove(at: 0)
-        } else {
+    func join(_ gamer: Gamer) throws -> MahjongTile.Wind {
+        guard !seats.isEmpty else {
             throw TableError.noRemainingSeats
         }
+        gamers.append(gamer)
+        return seats.removeFirst()
     }
     
     enum TableError: Error {

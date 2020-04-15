@@ -9,16 +9,6 @@
 import SpriteKit
 
 extension SKView {
-    var width: CGFloat {
-        get {
-            frame.width
-        }
-    }
-    var height: CGFloat {
-        get {
-            frame.height
-        }
-    }
     var safeAreaLeft: CGFloat {
         get {
             safeAreaInsets.left

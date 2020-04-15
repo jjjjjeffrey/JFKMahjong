@@ -9,29 +9,63 @@
 import SpriteKit
 import Combine
 
+class Gamer {
+    var name: String
+    
+    init(name: String) {
+        self.name = name
+    }
+    
+    var wind: MahjongTile.Wind?
+    
+    var joined: Bool {
+        get {
+            return wind != nil
+        }
+    }
+    
+    func joinTable(_ table: MahjongTable) {
+        do {
+            wind = try table.join(self)
+        } catch {
+            print("\(error.localizedDescription)")
+        }
+    }
+}
+
 class GuanNanMahjongScene: JKScene {
     
     let table = MahjongTable()
     
     var exitButtonClicked = PassthroughSubject<Void, Never>()
     
-    var currentUserWind: MahjongTile.Wind?
+    var currentGamerWind: MahjongTile.Wind?
+    var gamer1: Gamer = Gamer(name: "Jeffrey1")
+    var gamer2: Gamer = Gamer(name: "Jeffrey2")
+    var gamer3: Gamer = Gamer(name: "Jeffrey3")
+    var gamer4: Gamer = Gamer(name: "Jeffrey4")
     
     var myTiles: [MahjongTile] = []
     
     override func sceneDidLoad() {
-        do {
-            currentUserWind = try joinGame()
-        } catch {
-            print("\(error.localizedDescription)")
-        }
+        
+        table.isFull.assign(to: \.isEnable, on: startButton).store(in: &cancellables)
+        
+        table.isFull.sink { (full) in
+            print("是否满员: \(full)")
+        }.store(in: &cancellables)
+        
+        gamer1.joinTable(table)
+        gamer2.joinTable(table)
+        gamer3.joinTable(table)
+        gamer4.joinTable(table)
     }
     
     override func didMove(to view: SKView) {
         
-        if currentUserWind != nil {
-            startGame()
-        }
+        startButton.position = CGPoint(x: view.width/2,
+                                      y:view.height/2)
+        addChild(startButton)
         
         let backButton = JKButtonNode()
         backButton.setTitle("退出", for: .normal)
@@ -58,13 +92,20 @@ class GuanNanMahjongScene: JKScene {
         
     }
     
-    //加入游戏
-    func joinGame() throws -> MahjongTile.Wind {
-        //上桌
-        return try table.join()
-    }
+    //MARK: - Private
+    private lazy var startButton: JKButtonNode = {
+        let b = JKButtonNode()
+        b.isEnable = false
+        b.setTitle("开始游戏", for: .normal)
+        b.clicked.sink { [weak self] in
+            self?.startGame()
+        }.store(in: &cancellables)
+        return b
+    }()
     
     func startGame() {
+        
+        startButton.removeFromParent()
         
         //洗牌
         table.shufflingTheTiles()
@@ -96,7 +137,7 @@ class GuanNanMahjongScene: JKScene {
     }
     
     func getMyTiles() {
-        if let userWind = currentUserWind {
+        if let userWind = gamer1.wind {
             myTiles = table.getMyTiles(userWind)
         }
     }

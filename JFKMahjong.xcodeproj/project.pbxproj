@@ -27,6 +27,8 @@
 		01DA0415242DF1CD00509DB3 /* JFKMahjongTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01DA0414242DF1CD00509DB3 /* JFKMahjongTests.swift */; };
 		01DA0420242DF1CD00509DB3 /* JFKMahjongUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01DA041F242DF1CD00509DB3 /* JFKMahjongUITests.swift */; };
 		01E029D2242DFB7200666B41 /* Alamofire in Frameworks */ = {isa = PBXBuildFile; productRef = 01E029D1242DFB7200666B41 /* Alamofire */; };
+		01F70A112445C41300A17A58 /* SwifterSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 01F70A102445C41300A17A58 /* SwifterSwift */; };
+		01F80F382446A20E00777652 /* SwiftDate in Frameworks */ = {isa = PBXBuildFile; productRef = 01F80F372446A20E00777652 /* SwiftDate */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -81,6 +83,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				01E029D2242DFB7200666B41 /* Alamofire in Frameworks */,
+				01F70A112445C41300A17A58 /* SwifterSwift in Frameworks */,
+				01F80F382446A20E00777652 /* SwiftDate in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -215,6 +219,8 @@
 			name = JFKMahjong;
 			packageProductDependencies = (
 				01E029D1242DFB7200666B41 /* Alamofire */,
+				01F70A102445C41300A17A58 /* SwifterSwift */,
+				01F80F372446A20E00777652 /* SwiftDate */,
 			);
 			productName = JFKMahjong;
 			productReference = 01DA03F6242DF1CC00509DB3 /* JFKMahjong.app */;
@@ -290,6 +296,8 @@
 			mainGroup = 01DA03ED242DF1CC00509DB3;
 			packageReferences = (
 				01E029D0242DFB7200666B41 /* XCRemoteSwiftPackageReference "Alamofire" */,
+				01F70A0F2445C41300A17A58 /* XCRemoteSwiftPackageReference "SwifterSwift" */,
+				01F80F362446A20E00777652 /* XCRemoteSwiftPackageReference "SwiftDate" */,
 			);
 			productRefGroup = 01DA03F7242DF1CC00509DB3 /* Products */;
 			projectDirPath = "";
@@ -690,6 +698,22 @@
 				minimumVersion = 5.0.5;
 			};
 		};
+		01F70A0F2445C41300A17A58 /* XCRemoteSwiftPackageReference "SwifterSwift" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/SwifterSwift/SwifterSwift";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 5.2.0;
+			};
+		};
+		01F80F362446A20E00777652 /* XCRemoteSwiftPackageReference "SwiftDate" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/malcommac/SwiftDate.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 6.1.0;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -697,6 +721,16 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 01E029D0242DFB7200666B41 /* XCRemoteSwiftPackageReference "Alamofire" */;
 			productName = Alamofire;
+		};
+		01F70A102445C41300A17A58 /* SwifterSwift */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 01F70A0F2445C41300A17A58 /* XCRemoteSwiftPackageReference "SwifterSwift" */;
+			productName = SwifterSwift;
+		};
+		01F80F372446A20E00777652 /* SwiftDate */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 01F80F362446A20E00777652 /* XCRemoteSwiftPackageReference "SwiftDate" */;
+			productName = SwiftDate;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

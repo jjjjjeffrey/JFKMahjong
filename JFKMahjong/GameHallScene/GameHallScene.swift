@@ -15,7 +15,7 @@ class GameHallScene: JKScene {
     
     override func didMove(to view: SKView) {
         let startButton = JKButtonNode()
-        startButton.setTitle("开始游戏", for: .normal)
+        startButton.setTitle("创建房间", for: .normal)
         startButton.position = CGPoint(x: view.width/2,
                                       y:view.height/2)
         startButton.clicked.sink { [weak self] in
