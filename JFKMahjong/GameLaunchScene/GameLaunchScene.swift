@@ -18,7 +18,7 @@ class GameLaunchScene: JKScene {
         loginButton.setTitle("登录", for: .normal)
         loginButton.position = CGPoint(x: view.width/2,
                                       y:view.height/2)
-        loginButton.clicked.sink { [weak self] in
+        loginButton.clicked.sink { [weak self] button in
             self?.loginButtonClicked.send()
         }.store(in: &cancellables)
         addChild(loginButton)

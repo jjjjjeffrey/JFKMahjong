@@ -27,17 +27,36 @@ class MahjongTable {
     var gamers: [Gamer] = []
     
     var isFull = PassthroughSubject<Bool, Never>()
+    var isEnd = PassthroughSubject<Void, Never>()
+    var takeTurns = PassthroughSubject<MahjongTile.Wind, Never>()
     
     //牌墙
     private var tilesWall: [MahjongTile.Wind: [MahjongTile]] = [:]
-    //手牌
-    private var userTiles: [MahjongTile.Wind: [MahjongTile]] = [.east:[], .south:[], .west:[], .north:[]]
+    //起始手牌
+    private var startTiles: [MahjongTile.Wind: [MahjongTile]] = [.east:[], .south:[], .west:[], .north:[]] {
+        didSet {
+            eastTiles = startTiles[.east]?.sort() ?? []
+            southTiles = startTiles[.south]?.sort() ?? []
+            westTiles = startTiles[.west]?.sort() ?? []
+            northTiles = startTiles[.north]?.sort() ?? []
+        }
+    }
+    
+    private var eastTiles: [MahjongTile] = []
+    private var southTiles: [MahjongTile] = []
+    private var westTiles: [MahjongTile] = []
+    private var northTiles: [MahjongTile] = []
+    
     //剩余待抓牌
-    private var tilesRemaining: [MahjongTile] = []
+    private var tilesRemaining: [MahjongTile] = [] {
+        didSet {
+            print("剩余张数: \(tilesRemaining.count)")
+        }
+    }
     //剩余不摸的牌（用来补花和杠后摸牌，发牌后起始余8张）
     private var tailTiles : [MahjongTile] = []
     //庄家
-    private(set) var dealer: MahjongTile.Wind = .east
+    private(set) var dealerWind: MahjongTile.Wind = .east
     
     //上桌
     func join(_ gamer: Gamer) throws -> MahjongTile.Wind {
@@ -50,12 +69,15 @@ class MahjongTable {
     
     enum TableError: Error {
         case noRemainingSeats //没有剩余座位
+        case discardLogicError //出牌逻辑错误
         
         var localizedDescription: String {
             get {
                 switch self {
                 case .noRemainingSeats:
                     return "已坐满"
+                case .discardLogicError:
+                    return "出牌逻辑错误"
                 }
             }
         }
@@ -95,8 +117,8 @@ class MahjongTable {
     func confirmDealer() {
         throwDies()
         let diesValue = dies[0].value + dies[1].value
-        dealer = MahjongTile.Wind(diesValue%4)!
-        print("庄家: \(dealer)")
+        dealerWind = MahjongTile.Wind(diesValue%4)!
+        print("庄家: \(dealerWind)")
     }
     
     //发牌
@@ -111,7 +133,7 @@ class MahjongTable {
         }!
         
         //确定起始抓牌牌墙
-        var beginTilesWallWind : MahjongTile.Wind = dealer
+        var beginTilesWallWind : MahjongTile.Wind = dealerWind
         for _ in 0..<minDieValue-1 {
             beginTilesWallWind = beginTilesWallWind.previous()
         }
@@ -144,47 +166,100 @@ class MahjongTable {
         print("剩余待抓牌\(currentTiles.count)张：\(currentTiles)")
         
         //抓4圈，前3圈每人依次抓4张，最后一圈庄家抓2张，其他人抓1张，庄家14张，其他人13张
-        let secondUser = dealer.next()
+        let secondUser = dealerWind.next()
         let thirdUser = secondUser.next()
         let fourthUser = thirdUser.next()
+        //抓牌顺序
+        let winds = [dealerWind, secondUser, thirdUser, fourthUser]
+
         for i in 0..<4 {
             if i < 3 {
-                userTiles[dealer]?.append(contentsOf: currentTiles[i*16..<i*16+4])
-                userTiles[secondUser]?.append(contentsOf: currentTiles[i*16+4..<i*16+4+4])
-                userTiles[thirdUser]?.append(contentsOf: currentTiles[i*16+4+4..<i*16+4+4+4])
-                userTiles[fourthUser]?.append(contentsOf: currentTiles[i*16+4+4+4..<i*16+4+4+4+4])
+                for wind in winds {
+                    startTiles[wind]?.append(contentsOf: currentTiles[i*16+i*4..<i*16+(i+1)*4])
+                }
             } else {
                 //前三轮抓走48张牌
                 currentTiles = [MahjongTile](currentTiles[48..<currentTiles.endIndex])
-                userTiles[dealer]?.append(currentTiles.remove(at: 0))
-                userTiles[dealer]?.append(currentTiles.remove(at: 3))
-                userTiles[secondUser]?.append(currentTiles.remove(at: 0))
-                userTiles[thirdUser]?.append(currentTiles.remove(at: 0))
-                userTiles[fourthUser]?.append(currentTiles.remove(at: 0))
+                
+                for (i,wind) in winds.enumerated() {
+                    if i == 0 {
+                        startTiles[wind]?.append(currentTiles.remove(at: 0))
+                        startTiles[wind]?.append(currentTiles.remove(at: 3))
+                    } else {
+                        startTiles[wind]?.append(currentTiles.remove(at: 0))
+                    }
+                }
             }
         }
         let dealResult = """
         发牌结果: \r
-        \(dealer)\(userTiles[dealer]!)\r
-        \(secondUser)\(userTiles[secondUser]!)\r
-        \(thirdUser)\(userTiles[thirdUser]!)\r
-        \(fourthUser)\(userTiles[fourthUser]!)\r
+        \(dealerWind)\(startTiles[dealerWind]!)\r
+        \(secondUser)\(startTiles[secondUser]!)\r
+        \(thirdUser)\(startTiles[thirdUser]!)\r
+        \(fourthUser)\(startTiles[fourthUser]!)\r
         """
         print(dealResult)
         tilesRemaining = currentTiles
         print("剩余待摸牌\(tilesRemaining.count)张: \(tilesRemaining)")
+        
+        takeTurns.send(dealerWind)
     }
     
     //获取手牌
-    func getMyTiles(_ userWind: MahjongTile.Wind) -> [MahjongTile] {
-        return userTiles[userWind] ?? []
+    func getTiles(_ wind: MahjongTile.Wind) -> [MahjongTile] {
+        switch wind {
+        case .east:
+            return eastTiles
+        case .south:
+            return southTiles
+        case .west:
+            return westTiles
+        case .north:
+            return northTiles
+        }
     }
     
     //摸牌
-    func draw() -> MahjongTile {
-        
-        
-        
-        return .wind(.east)
+    func draw(wind: MahjongTile.Wind) {
+        guard tilesRemaining.count > 0 else {
+            return
+        }
+        let tile = tilesRemaining.removeLast()
+        switch wind {
+        case .east:
+            eastTiles.append(tile)
+            eastTiles = eastTiles.sort()
+        case .south:
+            southTiles.append(tile)
+            southTiles = southTiles.sort()
+        case .west:
+            westTiles.append(tile)
+            westTiles = westTiles.sort()
+        case .north:
+            northTiles.append(tile)
+            northTiles = northTiles.sort()
+        }
+        print("[\(wind)摸牌] \(tile)")
+    }
+    
+    //出牌
+    func discard(wind: MahjongTile.Wind, tileIndex: Int) {
+        var tile: MahjongTile
+        switch wind {
+        case .east:
+            tile = eastTiles.remove(at: tileIndex)
+        case .south:
+            tile = southTiles.remove(at: tileIndex)
+        case .west:
+            tile = westTiles.remove(at: tileIndex)
+        case .north:
+            tile = northTiles.remove(at: tileIndex)
+        }
+        print("[\(wind)出牌] \(tile)")
+        if tilesRemaining.count > 0 {
+            takeTurns.send(wind.next())
+        } else {
+            isEnd.send()
+        }
     }
 }

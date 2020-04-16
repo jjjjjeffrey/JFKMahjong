@@ -18,7 +18,7 @@ class GameHallScene: JKScene {
         startButton.setTitle("创建房间", for: .normal)
         startButton.position = CGPoint(x: view.width/2,
                                       y:view.height/2)
-        startButton.clicked.sink { [weak self] in
+        startButton.clicked.sink { [weak self] button in
             self?.startButtonClicked.send()
         }.store(in: &cancellables)
         addChild(startButton)

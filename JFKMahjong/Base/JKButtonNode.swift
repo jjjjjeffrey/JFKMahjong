@@ -12,11 +12,18 @@ import SwifterSwift
 
 class JKButtonNode: SKNode {
     
-    var clicked = PassthroughSubject<Void, Never>()
+    var clicked = PassthroughSubject<JKButtonNode, Never>()
+    
+    var tag: Int = 0
     
     private lazy var labelNode: SKLabelNode = {
         let node = SKLabelNode(text: "Button")
         node.fontColor = stateColors[.normal] ?? UIColor(hex: 0x0091FF)
+        return node
+    }()
+    
+    private lazy var spriteNode: SKSpriteNode = {
+        let node = SKSpriteNode()
         return node
     }()
     
@@ -32,15 +39,28 @@ class JKButtonNode: SKNode {
         }
     }
     
-    private(set) var state: State = .normal {
+    private var stateImages: [State: String] = [:] {
         didSet {
-            labelNode.fontColor = stateColors[state] ?? UIColor(hex: 0x0091FF)
+            spriteNode.texture = SKTexture(imageNamed: stateImages[state] ?? "")
         }
     }
     
-    var isEnable: Bool = true {
+    private(set) var state: State = .normal {
         didSet {
-            state = isEnable ? .normal : .disabled
+            labelNode.fontColor = stateColors[state] ?? UIColor(hex: 0x0091FF)
+            spriteNode.texture = SKTexture(imageNamed: stateImages[state] ?? "")
+        }
+    }
+    
+    var isEnabled: Bool = true {
+        didSet {
+            state = isEnabled ? .normal : .disabled
+        }
+    }
+    
+    var isSelected: Bool = false {
+        didSet {
+            state = isSelected ? .normal : .selected
         }
     }
     
@@ -81,6 +101,21 @@ class JKButtonNode: SKNode {
         addChild(labelNode)
     }
     
+    func setImage(_ imageName: String?, size: CGSize, for state: State) {
+        if stateImages.isEmpty {
+            stateImages[.normal] = imageName
+            stateImages[.disabled] = imageName
+            stateImages[.selected] = imageName
+            stateImages[.highlighted] = imageName
+        } else {
+            stateImages[state] = imageName
+        }
+        spriteNode.size = size
+        spriteNode.position = CGPoint(x: 0, y: 0)
+        
+        addChild(spriteNode)
+    }
+    
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         
     }
@@ -90,8 +125,8 @@ class JKButtonNode: SKNode {
     }
     
     override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
-        if isEnable {
-            clicked.send()
+        if isEnabled {
+            clicked.send(self)
         }
     }
     
