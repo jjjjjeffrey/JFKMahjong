@@ -71,6 +71,21 @@ enum MahjongTile: CustomStringConvertible {
         }
     }
     
+    var discardedLeftImageName: String {
+        get {
+            switch self {
+            case let .rank(number, rank):
+                return "\(rank.rawValue)-left-\(number)"
+            case let .wind(wind):
+                return "\(wind.rawValue)-left"
+            case let .dragon(dragon):
+                return "\(dragon.rawValue)-left"
+            case let .flower(flower):
+                return "\(flower.rawValue)-left"
+            }
+        }
+    }
+    
     var sortValue: Int {
         get {
             switch self {

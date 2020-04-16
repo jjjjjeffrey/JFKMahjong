@@ -195,6 +195,32 @@ class GuanNanMahjongScene: JKScene {
         }
     }
     
+    //上家出过的牌布局参数
+    private var leftDiscardTileWidth: CGFloat {
+        get {
+            return (frame.width-view!.safeAreaLeft-view!.safeAreaRight)/36
+        }
+    }
+    
+    private var leftDiscardTileHeight: CGFloat {
+        get {
+            return 185/170*leftDiscardTileWidth
+        }
+    }
+    
+    private var leftDiscardTileLeftBegin: CGFloat {
+        get {
+            return bottomDiscardTileLeftBegin-leftDiscardTileWidth/2-bottomDiscardTileWidth/2
+        }
+    }
+    
+    private var leftDiscardTileBottomBegin: CGFloat {
+        get {
+            let tileFaceHeight = leftDiscardTileHeight*118/170
+            return bottomDiscardTileBottomBegin+(bottomDiscardTileHeight-leftDiscardTileHeight)/2+tileFaceHeight*6
+        }
+    }
+    
     private func startGame() {
         
         startButton.removeFromParent()
@@ -244,34 +270,43 @@ class GuanNanMahjongScene: JKScene {
     private func updateDiscardedTilesUI(wind: MahjongTile.Wind, tiles: [MahjongTile]) {
         
         var z: CGFloat = 0
-        if gamer1.wind == wind {
-            for (i,tile) in tiles.enumerated() {
-                let tileNode = JKButtonNode()
+        
+        for (i,tile) in tiles.enumerated() {
+            let tileNode = JKButtonNode()
+            
+            if gamer1.wind == wind {
                 //一排中的第几张，一排6张
                 let lineTileIndex = i%6
                 let lineIndex = i/6
-                if gamer1.wind == wind {
-                    let left = bottomDiscardTileLeftBegin+CGFloat(lineTileIndex)*bottomDiscardTileWidth
-                    tileNode.setImage(tile.discardedBottomImageName, size: CGSize(width: bottomDiscardTileWidth, height: bottomDiscardTileHeight), for: .normal)
-                    tileNode.position = CGPoint(x: left, y: bottomDiscardTileBottomBegin-CGFloat(lineIndex)*bottomDiscardTileHeight*145/193)
-                    tileNode.zPosition = z
-                    addChild(tileNode)
-                    z += 0.01
-                }
-                switch wind {
-                case .east:
-                    eastDiscardedNodes.append(tileNode)
-                case .south:
-                    break
-                case .west:
-                    break
-                case .north:
-                    break
-                }
+                let left = bottomDiscardTileLeftBegin+CGFloat(lineTileIndex)*bottomDiscardTileWidth
+                tileNode.setImage(tile.discardedBottomImageName, size: CGSize(width: bottomDiscardTileWidth, height: bottomDiscardTileHeight), for: .normal)
+                tileNode.position = CGPoint(x: left, y: bottomDiscardTileBottomBegin-CGFloat(lineIndex)*bottomDiscardTileHeight*145/193)
+                tileNode.zPosition = z
+                addChild(tileNode)
+                z += 0.01
+            } else if gamer1.wind?.previous() == wind {
+                //一排中的第几张，一排6张
+                let lineTileIndex = i%6
+                let lineIndex = i/6
+                let bottom = leftDiscardTileBottomBegin-CGFloat(lineTileIndex)*leftDiscardTileHeight*118/170
+                tileNode.setImage(tile.discardedLeftImageName, size: CGSize(width: leftDiscardTileWidth, height: leftDiscardTileHeight), for: .normal)
+                tileNode.position = CGPoint(x: leftDiscardTileLeftBegin-leftDiscardTileWidth*CGFloat(lineIndex), y: bottom)
+                tileNode.zPosition = z
+                addChild(tileNode)
+                z += 0.01
+            }
+            
+            switch wind {
+            case .east:
+                eastDiscardedNodes.append(tileNode)
+            case .south:
+                southDiscardedNodes.append(tileNode)
+            case .west:
+                westDiscardedNodes.append(tileNode)
+            case .north:
+                northDiscardedNodes.append(tileNode)
             }
         }
-        
-        
         
         
     }
