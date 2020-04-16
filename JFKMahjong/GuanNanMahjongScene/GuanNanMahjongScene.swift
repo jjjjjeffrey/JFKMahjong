@@ -54,13 +54,17 @@ class GuanNanMahjongScene: JKScene {
     
     var exitButtonClicked = PassthroughSubject<Void, Never>()
     
-    var currentGamerWind: MahjongTile.Wind?
     var gamer1: Gamer = Gamer(name: "Jeffrey1")
     var gamer2: Gamer = Gamer(name: "Jeffrey2")
     var gamer3: Gamer = Gamer(name: "Jeffrey3")
     var gamer4: Gamer = Gamer(name: "Jeffrey4")
     
     private var tileNodes: [JKButtonNode] = []
+    //出过的牌
+    private var eastDiscardedNodes: [JKButtonNode] = []
+    private var southDiscardedNodes: [JKButtonNode] = []
+    private var westDiscardedNodes: [JKButtonNode] = []
+    private var northDiscardedNodes: [JKButtonNode] = []
     
     override func sceneDidLoad() {
         
@@ -76,7 +80,7 @@ class GuanNanMahjongScene: JKScene {
         gamer4.joinTable(table)
         
         table.takeTurns.sink { [weak self] (wind) in
-            if wind == self?.gamer1.wind {
+            if wind == self?.gamer1.wind, let tiles = self?.table.getTiles(wind), tiles.count < 14 {
                 self?.table.draw(wind: wind)
                 self?.updateMyTilesUI()
             } else if wind == self?.gamer2.wind {
@@ -86,6 +90,10 @@ class GuanNanMahjongScene: JKScene {
             } else if wind == self?.gamer4.wind {
                 self?.gamer4.autoDiscardTile()
             }
+        }.store(in: &cancellables)
+        
+        table.discardedTilesChanged.sink { [weak self] (wind, tiles) in
+            self?.updateDiscardedTilesUI(wind: wind, tiles: tiles)
         }.store(in: &cancellables)
         
         table.isEnd.sink { [weak self] in
@@ -137,6 +145,56 @@ class GuanNanMahjongScene: JKScene {
     
     private weak var currentActiveTile: JKButtonNode?
     
+    //当前玩家手牌布局参数
+    private var myTileWidth: CGFloat {
+        get {
+            return (frame.width-view!.safeAreaLeft-view!.safeAreaRight)/18
+        }
+    }
+    
+    private var myTileHeight: CGFloat {
+        get {
+            return 194/128*myTileWidth
+        }
+    }
+    
+    private var myTileLeftBegin: CGFloat {
+        get {
+            return myTileWidth/2+view!.safeAreaLeft+myTileWidth*2
+        }
+    }
+    
+    private var myTileBottomBegin: CGFloat {
+        get {
+            return view!.safeAreaBottom+myTileHeight/2
+        }
+    }
+    
+    //当前玩家出过的牌布局参数
+    private var bottomDiscardTileWidth: CGFloat {
+        get {
+            return (frame.width-view!.safeAreaLeft-view!.safeAreaRight)/36
+        }
+    }
+    
+    private var bottomDiscardTileHeight: CGFloat {
+        get {
+            return 194/128*bottomDiscardTileWidth
+        }
+    }
+    
+    private var bottomDiscardTileLeftBegin: CGFloat {
+        get {
+            return (view!.width-bottomDiscardTileWidth*6)/2+bottomDiscardTileWidth/2
+        }
+    }
+    
+    private var bottomDiscardTileBottomBegin: CGFloat {
+        get {
+            return myTileBottomBegin+bottomDiscardTileHeight*3
+        }
+    }
+    
     private func startGame() {
         
         startButton.removeFromParent()
@@ -162,20 +220,15 @@ class GuanNanMahjongScene: JKScene {
         }
         let mytiles = table.getTiles(wind)
         
-        let tileWidth = (frame.width-view!.safeAreaLeft-view!.safeAreaRight)/18
-        let tileHeight = 194/128*tileWidth
-        let leftBegin = tileWidth/2+view!.safeAreaLeft+tileWidth*2
-        let bottomBegin = view!.safeAreaBottom+tileHeight/2
-        
         for (i,tile) in mytiles.enumerated() {
-            var left = leftBegin+CGFloat(i)*tileWidth
+            var left = myTileLeftBegin+CGFloat(i)*myTileWidth
             if i == 13 {
                 left += 10
             }
             let tileNode = JKButtonNode()
             tileNode.tag = i
-            tileNode.setImage(tile.imageName, size: CGSize(width: tileWidth, height: tileHeight), for: .normal)
-            tileNode.position = CGPoint(x: left, y: bottomBegin)
+            tileNode.setImage(tile.imageName, size: CGSize(width: myTileWidth, height: myTileHeight), for: .normal)
+            tileNode.position = CGPoint(x: left, y: myTileBottomBegin)
             tileNode.clicked.sink { [weak self] button in
                 if button.isSelected {
                     self?.discardTile(button.tag)
@@ -186,6 +239,41 @@ class GuanNanMahjongScene: JKScene {
             addChild(tileNode)
             tileNodes.append(tileNode)
         }
+    }
+    
+    private func updateDiscardedTilesUI(wind: MahjongTile.Wind, tiles: [MahjongTile]) {
+        
+        var z: CGFloat = 0
+        if gamer1.wind == wind {
+            for (i,tile) in tiles.enumerated() {
+                let tileNode = JKButtonNode()
+                //一排中的第几张，一排6张
+                let lineTileIndex = i%6
+                let lineIndex = i/6
+                if gamer1.wind == wind {
+                    let left = bottomDiscardTileLeftBegin+CGFloat(lineTileIndex)*bottomDiscardTileWidth
+                    tileNode.setImage(tile.discardedBottomImageName, size: CGSize(width: bottomDiscardTileWidth, height: bottomDiscardTileHeight), for: .normal)
+                    tileNode.position = CGPoint(x: left, y: bottomDiscardTileBottomBegin-CGFloat(lineIndex)*bottomDiscardTileHeight*145/193)
+                    tileNode.zPosition = z
+                    addChild(tileNode)
+                    z += 0.01
+                }
+                switch wind {
+                case .east:
+                    eastDiscardedNodes.append(tileNode)
+                case .south:
+                    break
+                case .west:
+                    break
+                case .north:
+                    break
+                }
+            }
+        }
+        
+        
+        
+        
     }
     
     private func activeTile(_ button: JKButtonNode) {

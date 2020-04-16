@@ -29,6 +29,7 @@ class MahjongTable {
     var isFull = PassthroughSubject<Bool, Never>()
     var isEnd = PassthroughSubject<Void, Never>()
     var takeTurns = PassthroughSubject<MahjongTile.Wind, Never>()
+    var discardedTilesChanged = PassthroughSubject<(MahjongTile.Wind,[MahjongTile]), Never>()
     
     //牌墙
     private var tilesWall: [MahjongTile.Wind: [MahjongTile]] = [:]
@@ -42,10 +43,16 @@ class MahjongTable {
         }
     }
     
+    //当前手牌
     private var eastTiles: [MahjongTile] = []
     private var southTiles: [MahjongTile] = []
     private var westTiles: [MahjongTile] = []
     private var northTiles: [MahjongTile] = []
+    //出过的牌
+    private var eastDiscardedTiles: [MahjongTile] = []
+    private var southDiscardedTiles: [MahjongTile] = []
+    private var westDiscardedTiles: [MahjongTile] = []
+    private var northDiscardedTiles: [MahjongTile] = []
     
     //剩余待抓牌
     private var tilesRemaining: [MahjongTile] = [] {
@@ -248,12 +255,20 @@ class MahjongTable {
         switch wind {
         case .east:
             tile = eastTiles.remove(at: tileIndex)
+            eastDiscardedTiles.append(tile)
+            discardedTilesChanged.send((wind, eastDiscardedTiles))
         case .south:
             tile = southTiles.remove(at: tileIndex)
+            southDiscardedTiles.append(tile)
+            discardedTilesChanged.send((wind, southDiscardedTiles))
         case .west:
             tile = westTiles.remove(at: tileIndex)
+            westDiscardedTiles.append(tile)
+            discardedTilesChanged.send((wind, westDiscardedTiles))
         case .north:
             tile = northTiles.remove(at: tileIndex)
+            northDiscardedTiles.append(tile)
+            discardedTilesChanged.send((wind, northDiscardedTiles))
         }
         print("[\(wind)出牌] \(tile)")
         if tilesRemaining.count > 0 {
