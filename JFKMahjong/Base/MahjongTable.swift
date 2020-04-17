@@ -268,16 +268,12 @@ class MahjongTable {
         switch wind {
         case .east:
             eastTiles.append(tile)
-            eastTiles = eastTiles.sort()
         case .south:
             southTiles.append(tile)
-            southTiles = southTiles.sort()
         case .west:
             westTiles.append(tile)
-            westTiles = westTiles.sort()
         case .north:
             northTiles.append(tile)
-            northTiles = northTiles.sort()
         }
         print("[\(wind)摸牌] \(tile)")
     }
@@ -288,18 +284,22 @@ class MahjongTable {
         switch wind {
         case .east:
             tile = eastTiles.remove(at: tileIndex)
+            eastTiles = eastTiles.sort()
             eastDiscardedTiles.append(tile)
             discardedTilesChanged.send((wind, eastDiscardedTiles))
         case .south:
             tile = southTiles.remove(at: tileIndex)
+            southTiles = southTiles.sort()
             southDiscardedTiles.append(tile)
             discardedTilesChanged.send((wind, southDiscardedTiles))
         case .west:
             tile = westTiles.remove(at: tileIndex)
+            westTiles = westTiles.sort()
             westDiscardedTiles.append(tile)
             discardedTilesChanged.send((wind, westDiscardedTiles))
         case .north:
             tile = northTiles.remove(at: tileIndex)
+            northTiles = northTiles.sort()
             northDiscardedTiles.append(tile)
             discardedTilesChanged.send((wind, northDiscardedTiles))
         }

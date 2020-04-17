@@ -70,6 +70,8 @@ class GuanNanMahjongScene: JKScene {
     private var topTileNodes: [JKButtonNode] = []
     //上家手牌node
     private var leftTileNodes: [JKButtonNode] = []
+    //下家手牌node
+    private var rightTileNodes: [JKButtonNode] = []
     //出过的牌
     private var eastDiscardedNodes: [JKButtonNode] = []
     private var southDiscardedNodes: [JKButtonNode] = []
@@ -107,6 +109,8 @@ class GuanNanMahjongScene: JKScene {
                 self?.updateTopTilesUI()
             } else if wind == self?.gamer1.wind?.previous() {
                 self?.updateLeftTilesUI()
+            } else if wind == self?.gamer1.wind?.next() {
+                self?.updateRightTilesUI()
             }
         }.store(in: &cancellables)
         
@@ -232,7 +236,7 @@ class GuanNanMahjongScene: JKScene {
     //上家手牌左侧起始位置
     private var leftTileLeftBegin: CGFloat {
         get {
-            return leftDiscardTileLeftBegin-5*leftDiscardTileWidth
+            return leftDiscardTileLeftBegin-6*leftDiscardTileWidth
         }
     }
     //上家手牌底部起始位置
@@ -241,6 +245,34 @@ class GuanNanMahjongScene: JKScene {
             //牌顶部宽度
             let topWidth = leftTileHeight*73/134
             return view!.height-(view!.height-13*topWidth+leftTileHeight)/2+myTileHeight
+        }
+    }
+    
+    //下家手牌宽度
+    private var rightTileWidth: CGFloat {
+        get {
+            return leftTileWidth
+        }
+    }
+    //下家手牌高度
+    private var rightTileHeight: CGFloat {
+        get {
+            return leftTileHeight
+        }
+    }
+    
+    //下家手牌左侧起始位置
+    private var rightTileLeftBegin: CGFloat {
+        get {
+            return rightDiscardTileLeftBegin+6*rightDiscardTileWidth
+        }
+    }
+    //下家手牌底部起始位置
+    private var rightTileBottomBegin: CGFloat {
+        get {
+            //牌顶部宽度
+            let topWidth = rightTileHeight*73/134
+            return view!.height-(view!.height-13*topWidth+rightTileHeight)/2-13*topWidth+myTileHeight
         }
     }
     
@@ -425,6 +457,7 @@ class GuanNanMahjongScene: JKScene {
         leftTileNodes.forEach { (node) in
             node.removeFromParent()
         }
+        var z: CGFloat = 0
         let tilesCount = table.getTiles(wind).count
         for i in 0..<tilesCount {
             var bottom = leftTileBottomBegin-CGFloat(i)*leftTileHeight*73/134
@@ -434,8 +467,35 @@ class GuanNanMahjongScene: JKScene {
             let tileNode = JKButtonNode()
             tileNode.setImage("tile-reverse-left", size: CGSize(width: leftTileWidth, height: leftTileHeight), for: .normal)
             tileNode.position = CGPoint(x: leftTileLeftBegin, y: bottom)
+            tileNode.zPosition = z
             addChild(tileNode)
             leftTileNodes.append(tileNode)
+            z += 0.01
+        }
+    }
+    
+    //刷新下家手牌UI
+    private func updateRightTilesUI() {
+        guard let wind = gamer1.wind?.next() else {
+            return
+        }
+        rightTileNodes.forEach { (node) in
+            node.removeFromParent()
+        }
+        var z: CGFloat = 0
+        let tilesCount = table.getTiles(wind).count
+        for i in 0..<tilesCount {
+            var bottom = rightTileBottomBegin+CGFloat(i)*rightTileHeight*73/134
+            if i == 13 {
+                bottom += 5
+            }
+            let tileNode = JKButtonNode()
+            tileNode.setImage("tile-reverse-right", size: CGSize(width: rightTileWidth, height: rightTileHeight), for: .normal)
+            tileNode.position = CGPoint(x: rightTileLeftBegin, y: bottom)
+            tileNode.zPosition = z
+            addChild(tileNode)
+            rightTileNodes.append(tileNode)
+            z -= 0.01
         }
     }
     
