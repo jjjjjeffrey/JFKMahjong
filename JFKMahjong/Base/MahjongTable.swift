@@ -49,6 +49,15 @@ class MahjongTable {
         }
     }
     
+    //当前出牌位置
+    private(set) var currentTurnWind: MahjongTile.Wind? {
+        didSet {
+            if let wind = currentTurnWind {
+                takeTurns.send(wind)
+            }
+        }
+    }
+    
     //当前手牌
     private var eastTiles: [MahjongTile] = [] {
         didSet {
@@ -59,17 +68,17 @@ class MahjongTable {
            didSet {
                gamerTilesChanged.send((.south, eastTiles))
            }
-       }
+    }
     private var westTiles: [MahjongTile] = [] {
            didSet {
                gamerTilesChanged.send((.west, eastTiles))
            }
-       }
+    }
     private var northTiles: [MahjongTile] = [] {
            didSet {
                gamerTilesChanged.send((.north, eastTiles))
            }
-       }
+    }
     //出过的牌
     private var eastDiscardedTiles: [MahjongTile] = []
     private var southDiscardedTiles: [MahjongTile] = []
@@ -203,8 +212,10 @@ class MahjongTable {
 
         for i in 0..<4 {
             if i < 3 {
-                for wind in winds {
-                    startTiles[wind]?.append(contentsOf: currentTiles[i*16+i*4..<i*16+(i+1)*4])
+                for (j,wind) in winds.enumerated() {
+                    let tiles = currentTiles[i*16+j*4..<i*16+(j+1)*4]
+                    startTiles[wind]?.append(contentsOf: tiles)
+                    print("\(wind)拿牌 \(tiles)")
                 }
             } else {
                 //前三轮抓走48张牌
@@ -230,8 +241,8 @@ class MahjongTable {
         print(dealResult)
         tilesRemaining = currentTiles
         print("剩余待摸牌\(tilesRemaining.count)张: \(tilesRemaining)")
-        
-        takeTurns.send(dealerWind)
+
+        currentTurnWind = dealerWind
     }
     
     //获取手牌
@@ -294,7 +305,7 @@ class MahjongTable {
         }
         print("[\(wind)出牌] \(tile)")
         if tilesRemaining.count > 0 {
-            takeTurns.send(wind.next())
+            currentTurnWind = wind.next()
         } else {
             isEnd.send()
         }

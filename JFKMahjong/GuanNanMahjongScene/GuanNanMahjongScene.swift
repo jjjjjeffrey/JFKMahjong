@@ -68,6 +68,8 @@ class GuanNanMahjongScene: JKScene {
     private var myTileNodes: [JKButtonNode] = []
     //对家手牌node
     private var topTileNodes: [JKButtonNode] = []
+    //上家手牌node
+    private var leftTileNodes: [JKButtonNode] = []
     //出过的牌
     private var eastDiscardedNodes: [JKButtonNode] = []
     private var southDiscardedNodes: [JKButtonNode] = []
@@ -103,6 +105,8 @@ class GuanNanMahjongScene: JKScene {
         table.gamerTilesChanged.sink { [weak self] (wind, tiles) in
             if wind == self?.gamer1.wind?.previous().previous() {
                 self?.updateTopTilesUI()
+            } else if wind == self?.gamer1.wind?.previous() {
+                self?.updateLeftTilesUI()
             }
         }.store(in: &cancellables)
         
@@ -209,6 +213,34 @@ class GuanNanMahjongScene: JKScene {
     private var topTileBottomBegin: CGFloat {
         get {
             return view!.height-topTileHeight/2-10
+        }
+    }
+    
+    //上家手牌宽度
+    private var leftTileWidth: CGFloat {
+        get {
+            return leftTileHeight*58/134
+        }
+    }
+    //上家手牌高度
+    private var leftTileHeight: CGFloat {
+        get {
+            return topTileHeight
+        }
+    }
+    
+    //上家手牌左侧起始位置
+    private var leftTileLeftBegin: CGFloat {
+        get {
+            return leftDiscardTileLeftBegin-5*leftDiscardTileWidth
+        }
+    }
+    //上家手牌底部起始位置
+    private var leftTileBottomBegin: CGFloat {
+        get {
+            //牌顶部宽度
+            let topWidth = leftTileHeight*73/134
+            return view!.height-(view!.height-13*topWidth+leftTileHeight)/2+myTileHeight
         }
     }
     
@@ -385,6 +417,28 @@ class GuanNanMahjongScene: JKScene {
         }
     }
     
+    //刷新上家手牌UI
+    private func updateLeftTilesUI() {
+        guard let wind = gamer1.wind?.previous() else {
+            return
+        }
+        leftTileNodes.forEach { (node) in
+            node.removeFromParent()
+        }
+        let tilesCount = table.getTiles(wind).count
+        for i in 0..<tilesCount {
+            var bottom = leftTileBottomBegin-CGFloat(i)*leftTileHeight*73/134
+            if i == 13 {
+                bottom -= 5
+            }
+            let tileNode = JKButtonNode()
+            tileNode.setImage("tile-reverse-left", size: CGSize(width: leftTileWidth, height: leftTileHeight), for: .normal)
+            tileNode.position = CGPoint(x: leftTileLeftBegin, y: bottom)
+            addChild(tileNode)
+            leftTileNodes.append(tileNode)
+        }
+    }
+    
     private func updateDiscardedTilesUI(wind: MahjongTile.Wind, tiles: [MahjongTile]) {
         
         switch wind {
@@ -499,6 +553,9 @@ class GuanNanMahjongScene: JKScene {
     }
     
     func discardTile(_ index: Int) {
+        guard table.currentTurnWind == gamer1.wind else {
+            return
+        }
         if let userWind = gamer1.wind {
             table.discard(wind: userWind, tileIndex: index)
             self.updateMyTilesUI()
