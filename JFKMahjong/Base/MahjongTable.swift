@@ -26,10 +26,16 @@ class MahjongTable {
     }
     var gamers: [Gamer] = []
     
+    //是否坐满
     var isFull = PassthroughSubject<Bool, Never>()
+    //流局
     var isEnd = PassthroughSubject<Void, Never>()
+    //轮到谁出牌
     var takeTurns = PassthroughSubject<MahjongTile.Wind, Never>()
+    //出牌变化
     var discardedTilesChanged = PassthroughSubject<(MahjongTile.Wind,[MahjongTile]), Never>()
+    //玩家手牌变化
+    var gamerTilesChanged = PassthroughSubject<(MahjongTile.Wind,[MahjongTile]), Never>()
     
     //牌墙
     private var tilesWall: [MahjongTile.Wind: [MahjongTile]] = [:]
@@ -44,10 +50,26 @@ class MahjongTable {
     }
     
     //当前手牌
-    private var eastTiles: [MahjongTile] = []
-    private var southTiles: [MahjongTile] = []
-    private var westTiles: [MahjongTile] = []
-    private var northTiles: [MahjongTile] = []
+    private var eastTiles: [MahjongTile] = [] {
+        didSet {
+            gamerTilesChanged.send((.east, eastTiles))
+        }
+    }
+    private var southTiles: [MahjongTile] = [] {
+           didSet {
+               gamerTilesChanged.send((.south, eastTiles))
+           }
+       }
+    private var westTiles: [MahjongTile] = [] {
+           didSet {
+               gamerTilesChanged.send((.west, eastTiles))
+           }
+       }
+    private var northTiles: [MahjongTile] = [] {
+           didSet {
+               gamerTilesChanged.send((.north, eastTiles))
+           }
+       }
     //出过的牌
     private var eastDiscardedTiles: [MahjongTile] = []
     private var southDiscardedTiles: [MahjongTile] = []

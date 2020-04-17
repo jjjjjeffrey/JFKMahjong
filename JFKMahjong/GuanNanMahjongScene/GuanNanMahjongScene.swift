@@ -35,7 +35,8 @@ class Gamer {
         }
     }
     
-    func autoDiscardTile() {
+    //自动抓牌出牌
+    func autoDrawDiscardTile() {
         guard let wind = wind else {
             return
         }
@@ -44,7 +45,11 @@ class Gamer {
             table?.draw(wind: wind)
             tiles = table?.getTiles(wind) ?? []
         }
-        table?.discard(wind: wind, tileIndex: tiles.endIndex-1)
+        let deadlineTime = DispatchTime.now() + .seconds(1)
+        DispatchQueue.main.asyncAfter(deadline: deadlineTime) { [weak self] in
+            let tiles = self?.table?.getTiles(wind) ?? []
+            self?.table?.discard(wind: wind, tileIndex: tiles.endIndex-1)
+        }
     }
 }
 
@@ -59,7 +64,10 @@ class GuanNanMahjongScene: JKScene {
     var gamer3: Gamer = Gamer(name: "Jeffrey3")
     var gamer4: Gamer = Gamer(name: "Jeffrey4")
     
-    private var tileNodes: [JKButtonNode] = []
+    //当前玩家手牌node
+    private var myTileNodes: [JKButtonNode] = []
+    //对家手牌node
+    private var topTileNodes: [JKButtonNode] = []
     //出过的牌
     private var eastDiscardedNodes: [JKButtonNode] = []
     private var southDiscardedNodes: [JKButtonNode] = []
@@ -84,11 +92,17 @@ class GuanNanMahjongScene: JKScene {
                 self?.table.draw(wind: wind)
                 self?.updateMyTilesUI()
             } else if wind == self?.gamer2.wind {
-                self?.gamer2.autoDiscardTile()
+                self?.gamer2.autoDrawDiscardTile()
             } else if wind == self?.gamer3.wind {
-                self?.gamer3.autoDiscardTile()
+                self?.gamer3.autoDrawDiscardTile()
             } else if wind == self?.gamer4.wind {
-                self?.gamer4.autoDiscardTile()
+                self?.gamer4.autoDrawDiscardTile()
+            }
+        }.store(in: &cancellables)
+        
+        table.gamerTilesChanged.sink { [weak self] (wind, tiles) in
+            if wind == self?.gamer1.wind?.previous().previous() {
+                self?.updateTopTilesUI()
             }
         }.store(in: &cancellables)
         
@@ -146,27 +160,55 @@ class GuanNanMahjongScene: JKScene {
     private weak var currentActiveTile: JKButtonNode?
     
     //当前玩家手牌布局参数
+    //当前玩家手牌宽度
     private var myTileWidth: CGFloat {
         get {
             return (frame.width-view!.safeAreaLeft-view!.safeAreaRight)/18
         }
     }
-    
+    //当前玩家手牌高度
     private var myTileHeight: CGFloat {
         get {
             return 194/128*myTileWidth
         }
     }
     
+    //当前玩家手牌左侧起始位置
     private var myTileLeftBegin: CGFloat {
         get {
             return myTileWidth/2+view!.safeAreaLeft+myTileWidth*2
         }
     }
-    
+    //当前玩家手牌底部起始位置
     private var myTileBottomBegin: CGFloat {
         get {
             return view!.safeAreaBottom+myTileHeight/2
+        }
+    }
+    
+    //对家手牌宽度
+    private var topTileWidth: CGFloat {
+        get {
+            return bottomDiscardTileWidth
+        }
+    }
+    //对家手牌高度
+    private var topTileHeight: CGFloat {
+        get {
+            return bottomDiscardTileHeight
+        }
+    }
+    
+    //对家手牌左侧起始位置
+    private var topTileLeftBegin: CGFloat {
+        get {
+            return view!.width-(view!.width-topTileWidth*14)/2
+        }
+    }
+    //对家手牌底部起始位置
+    private var topTileBottomBegin: CGFloat {
+        get {
+            return view!.height-topTileHeight/2-10
         }
     }
     
@@ -269,7 +311,9 @@ class GuanNanMahjongScene: JKScene {
     
     private var rightDiscardTileBottomBegin: CGFloat {
         get {
-            return leftDiscardTileBottomBegin
+            //118/170是牌面和牌侧面比例
+            let tileFaceHeight = rightDiscardTileHeight*118/170
+            return leftDiscardTileBottomBegin-5*tileFaceHeight
         }
     }
     
@@ -289,11 +333,12 @@ class GuanNanMahjongScene: JKScene {
         updateMyTilesUI()
     }
     
+    //刷新当前玩家手牌UI
     private func updateMyTilesUI() {
         guard let wind = gamer1.wind else {
             return
         }
-        tileNodes.forEach { (node) in
+        myTileNodes.forEach { (node) in
             node.removeFromParent()
         }
         let mytiles = table.getTiles(wind)
@@ -315,11 +360,51 @@ class GuanNanMahjongScene: JKScene {
                 }
             }.store(in: &cancellables)
             addChild(tileNode)
-            tileNodes.append(tileNode)
+            myTileNodes.append(tileNode)
+        }
+    }
+    //刷新对家手牌UI
+    private func updateTopTilesUI() {
+        guard let wind = gamer1.wind?.previous().previous() else {
+            return
+        }
+        topTileNodes.forEach { (node) in
+            node.removeFromParent()
+        }
+        let tilesCount = table.getTiles(wind).count
+        for i in 0..<tilesCount {
+            var left = topTileLeftBegin-CGFloat(i)*topTileWidth
+            if i == 13 {
+                left -= 5
+            }
+            let tileNode = JKButtonNode()
+            tileNode.setImage("tile-reverse-top", size: CGSize(width: topTileWidth, height: topTileHeight), for: .normal)
+            tileNode.position = CGPoint(x: left, y: topTileBottomBegin)
+            addChild(tileNode)
+            topTileNodes.append(tileNode)
         }
     }
     
     private func updateDiscardedTilesUI(wind: MahjongTile.Wind, tiles: [MahjongTile]) {
+        
+        switch wind {
+        case .east:
+            eastDiscardedNodes.forEach { (node) in
+                node.removeFromParent()
+            }
+        case .south:
+            southDiscardedNodes.forEach { (node) in
+                node.removeFromParent()
+            }
+        case .west:
+            westDiscardedNodes.forEach { (node) in
+                node.removeFromParent()
+            }
+        case .north:
+            northDiscardedNodes.forEach { (node) in
+                node.removeFromParent()
+            }
+        }
         
         var z: CGFloat = 0
         
@@ -367,12 +452,12 @@ class GuanNanMahjongScene: JKScene {
                 let lineTileIndex = i%6
                 let lineIndex = i/6
                 //118/170是牌面和牌侧面比例
-                let bottom = rightDiscardTileBottomBegin-CGFloat(lineTileIndex)*rightDiscardTileHeight*118/170
+                let bottom = rightDiscardTileBottomBegin+CGFloat(lineTileIndex)*rightDiscardTileHeight*118/170
                 tileNode.setImage(tile.discardedRightImageName, size: CGSize(width: rightDiscardTileWidth, height: rightDiscardTileHeight), for: .normal)
                 tileNode.position = CGPoint(x: rightDiscardTileLeftBegin+rightDiscardTileWidth*CGFloat(lineIndex), y: bottom)
                 tileNode.zPosition = z
                 addChild(tileNode)
-                z += 0.01
+                z -= 0.01
             }
             
             switch wind {
