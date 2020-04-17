@@ -221,6 +221,31 @@ class GuanNanMahjongScene: JKScene {
         }
     }
     
+    //对家出过的牌布局参数
+    private var topDiscardTileWidth: CGFloat {
+        get {
+            return bottomDiscardTileWidth
+        }
+    }
+    
+    private var topDiscardTileHeight: CGFloat {
+        get {
+            return bottomDiscardTileHeight
+        }
+    }
+    
+    private var topDiscardTileLeftBegin: CGFloat {
+        get {
+            return bottomDiscardTileLeftBegin+5*topDiscardTileWidth
+        }
+    }
+    
+    private var topDiscardTileBottomBegin: CGFloat {
+        get {
+            return bottomDiscardTileBottomBegin+6*leftDiscardTileHeight*118/170+topDiscardTileHeight
+        }
+    }
+    
     private func startGame() {
         
         startButton.removeFromParent()
@@ -285,6 +310,7 @@ class GuanNanMahjongScene: JKScene {
                 addChild(tileNode)
                 z += 0.01
             } else if gamer1.wind?.previous() == wind {
+                //上家
                 //一排中的第几张，一排6张
                 let lineTileIndex = i%6
                 let lineIndex = i/6
@@ -294,6 +320,17 @@ class GuanNanMahjongScene: JKScene {
                 tileNode.zPosition = z
                 addChild(tileNode)
                 z += 0.01
+            } else if gamer1.wind?.previous().previous() == wind {
+                //一排中的第几张，一排6张
+                //对家
+                let lineTileIndex = i%6
+                let lineIndex = i/6
+                let left = topDiscardTileLeftBegin-CGFloat(lineTileIndex)*topDiscardTileWidth
+                tileNode.setImage(tile.discardedTopImageName, size: CGSize(width: topDiscardTileWidth, height: topDiscardTileHeight), for: .normal)
+                tileNode.position = CGPoint(x: left, y: topDiscardTileBottomBegin+CGFloat(lineIndex)*topDiscardTileHeight*145/193)
+                tileNode.zPosition = z
+                addChild(tileNode)
+                z -= 0.01
             }
             
             switch wind {
