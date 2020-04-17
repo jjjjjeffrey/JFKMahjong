@@ -216,6 +216,7 @@ class GuanNanMahjongScene: JKScene {
     
     private var leftDiscardTileBottomBegin: CGFloat {
         get {
+            //118/170是牌面和牌侧面比例
             let tileFaceHeight = leftDiscardTileHeight*118/170
             return bottomDiscardTileBottomBegin+(bottomDiscardTileHeight-leftDiscardTileHeight)/2+tileFaceHeight*6
         }
@@ -242,7 +243,33 @@ class GuanNanMahjongScene: JKScene {
     
     private var topDiscardTileBottomBegin: CGFloat {
         get {
+            //118/170是牌面和牌侧面比例
             return bottomDiscardTileBottomBegin+6*leftDiscardTileHeight*118/170+topDiscardTileHeight
+        }
+    }
+    
+    //下家出过的牌布局参数
+    private var rightDiscardTileWidth: CGFloat {
+        get {
+            return leftDiscardTileWidth
+        }
+    }
+    
+    private var rightDiscardTileHeight: CGFloat {
+        get {
+            return leftDiscardTileHeight
+        }
+    }
+    
+    private var rightDiscardTileLeftBegin: CGFloat {
+        get {
+            return leftDiscardTileLeftBegin+6*topDiscardTileWidth+rightDiscardTileWidth
+        }
+    }
+    
+    private var rightDiscardTileBottomBegin: CGFloat {
+        get {
+            return leftDiscardTileBottomBegin
         }
     }
     
@@ -305,6 +332,7 @@ class GuanNanMahjongScene: JKScene {
                 let lineIndex = i/6
                 let left = bottomDiscardTileLeftBegin+CGFloat(lineTileIndex)*bottomDiscardTileWidth
                 tileNode.setImage(tile.discardedBottomImageName, size: CGSize(width: bottomDiscardTileWidth, height: bottomDiscardTileHeight), for: .normal)
+                //145/193是牌面和牌侧面比例
                 tileNode.position = CGPoint(x: left, y: bottomDiscardTileBottomBegin-CGFloat(lineIndex)*bottomDiscardTileHeight*145/193)
                 tileNode.zPosition = z
                 addChild(tileNode)
@@ -314,6 +342,7 @@ class GuanNanMahjongScene: JKScene {
                 //一排中的第几张，一排6张
                 let lineTileIndex = i%6
                 let lineIndex = i/6
+                //118/170是牌面和牌侧面比例
                 let bottom = leftDiscardTileBottomBegin-CGFloat(lineTileIndex)*leftDiscardTileHeight*118/170
                 tileNode.setImage(tile.discardedLeftImageName, size: CGSize(width: leftDiscardTileWidth, height: leftDiscardTileHeight), for: .normal)
                 tileNode.position = CGPoint(x: leftDiscardTileLeftBegin-leftDiscardTileWidth*CGFloat(lineIndex), y: bottom)
@@ -327,10 +356,23 @@ class GuanNanMahjongScene: JKScene {
                 let lineIndex = i/6
                 let left = topDiscardTileLeftBegin-CGFloat(lineTileIndex)*topDiscardTileWidth
                 tileNode.setImage(tile.discardedTopImageName, size: CGSize(width: topDiscardTileWidth, height: topDiscardTileHeight), for: .normal)
+                //145/193是牌面和牌侧面比例
                 tileNode.position = CGPoint(x: left, y: topDiscardTileBottomBegin+CGFloat(lineIndex)*topDiscardTileHeight*145/193)
                 tileNode.zPosition = z
                 addChild(tileNode)
                 z -= 0.01
+            } else if gamer1.wind?.next() == wind {
+                //下家
+                //一排中的第几张，一排6张
+                let lineTileIndex = i%6
+                let lineIndex = i/6
+                //118/170是牌面和牌侧面比例
+                let bottom = rightDiscardTileBottomBegin-CGFloat(lineTileIndex)*rightDiscardTileHeight*118/170
+                tileNode.setImage(tile.discardedRightImageName, size: CGSize(width: rightDiscardTileWidth, height: rightDiscardTileHeight), for: .normal)
+                tileNode.position = CGPoint(x: rightDiscardTileLeftBegin+rightDiscardTileWidth*CGFloat(lineIndex), y: bottom)
+                tileNode.zPosition = z
+                addChild(tileNode)
+                z += 0.01
             }
             
             switch wind {
