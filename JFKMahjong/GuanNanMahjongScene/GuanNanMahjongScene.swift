@@ -276,6 +276,49 @@ class GuanNanMahjongScene: JKScene {
         }
     }
     
+    //中心区域宽高
+    private var centerAreaWidth: CGFloat {
+        get {
+            return bottomDiscardTileWidth*6
+        }
+    }
+    private var centerAreaHeight: CGFloat {
+        get {
+            let tileFaceHeight = leftDiscardTileHeight*118/170
+            return tileFaceHeight*5+leftDiscardTileHeight
+        }
+    }
+    
+    //中心区域坐标
+    private var centerAreaTopLeftPoint: CGPoint {
+        get {
+            let x = (view!.width-centerAreaWidth)/2
+            let y = (view!.height-centerAreaHeight)/2 + centerAreaHeight
+            return CGPoint(x: x, y: y)
+        }
+    }
+    private var centerAreaTopRightPoint: CGPoint {
+        get {
+            let x = centerAreaWidth+(view!.width-centerAreaWidth)/2
+            let y = (view!.height-centerAreaHeight)/2 + centerAreaHeight
+            return CGPoint(x: x, y: y)
+        }
+    }
+    private var centerAreaBottomLeftPoint: CGPoint {
+        get {
+            let x = (view!.width-centerAreaWidth)/2
+            let y = (view!.height-centerAreaHeight)/2
+            return CGPoint(x: x, y: y)
+        }
+    }
+    private var centerAreaBottomRightPoint: CGPoint {
+        get {
+            let x = centerAreaWidth+(view!.width-centerAreaWidth)/2
+            let y = (view!.height-centerAreaHeight)/2
+            return CGPoint(x: x, y: y)
+        }
+    }
+    
     //当前玩家出过的牌布局参数
     private var bottomDiscardTileWidth: CGFloat {
         get {
@@ -297,7 +340,7 @@ class GuanNanMahjongScene: JKScene {
     
     private var bottomDiscardTileBottomBegin: CGFloat {
         get {
-            return myTileBottomBegin+bottomDiscardTileHeight*3
+            return centerAreaBottomLeftPoint.y - bottomDiscardTileHeight/2
         }
     }
     
