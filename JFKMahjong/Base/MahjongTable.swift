@@ -36,6 +36,8 @@ class MahjongTable {
     var discardedTilesChanged = PassthroughSubject<(MahjongTile.Wind,[MahjongTile]), Never>()
     //玩家手牌变化
     var gamerTilesChanged = PassthroughSubject<(MahjongTile.Wind,[MahjongTile]), Never>()
+    //玩家花牌变化
+    var gamerFlowerTilesChanged = PassthroughSubject<(MahjongTile.Wind,Int), Never>()
     
     //牌墙
     private var tilesWall: [MahjongTile.Wind: [MahjongTile]] = [:]
@@ -77,6 +79,27 @@ class MahjongTable {
     private var northTiles: [MahjongTile] = [] {
            didSet {
                gamerTilesChanged.send((.north, eastTiles))
+           }
+    }
+    //当前花牌数量
+    private var eastFlowerTilesCount: Int = 0 {
+        didSet {
+            gamerFlowerTilesChanged.send((.east, eastFlowerTilesCount))
+        }
+    }
+    private var southFlowerTilesCount: Int = 0 {
+           didSet {
+               gamerFlowerTilesChanged.send((.south, southFlowerTilesCount))
+           }
+    }
+    private var westFlowerTilesCount: Int = 0 {
+           didSet {
+               gamerFlowerTilesChanged.send((.west, westFlowerTilesCount))
+           }
+    }
+    private var northFlowerTilesCount: Int = 0 {
+           didSet {
+               gamerFlowerTilesChanged.send((.north, northFlowerTilesCount))
            }
     }
     //出过的牌
@@ -245,6 +268,70 @@ class MahjongTable {
         currentTurnWind = dealerWind
     }
     
+    //补花
+    func flowerSupplement() {
+        let secondUser = dealerWind.next()
+        let thirdUser = secondUser.next()
+        let fourthUser = thirdUser.next()
+        //补花顺序
+        let winds = [dealerWind, secondUser, thirdUser, fourthUser]
+        
+        for wind in winds {
+            flowerSupplementForWind(wind)
+        }
+    }
+    
+    func flowerSupplementForWind(_ wind: MahjongTile.Wind) {
+        switch wind {
+        case .east:
+            eastTiles = flowerSupplementForWind(wind, tiles: eastTiles).sort()
+        case .south:
+            southTiles = flowerSupplementForWind(wind, tiles: southTiles).sort()
+        case .west:
+            westTiles = flowerSupplementForWind(wind, tiles: westTiles).sort()
+        case .north:
+            northTiles = flowerSupplementForWind(wind, tiles: northTiles).sort()
+        }
+    }
+    
+    private func flowerSupplementForWind(_ wind: MahjongTile.Wind, tiles: [MahjongTile]) -> [MahjongTile] {
+        print("[\(wind) 补花]")
+        var tilesWithoutDragon = tiles
+        tilesWithoutDragon.removeAll { (tile) -> Bool in
+            switch tile {
+            case .dragon:
+                return true
+            default:
+                return false
+            }
+        }
+        let countForSupplement = tiles.count - tilesWithoutDragon.count
+        if countForSupplement > 0 {
+            switch wind {
+            case .east:
+                eastFlowerTilesCount += countForSupplement
+            case .south:
+                southFlowerTilesCount += countForSupplement
+            case .west:
+                westFlowerTilesCount += countForSupplement
+            case .north:
+                northFlowerTilesCount += countForSupplement
+            }
+        }
+        for _ in 0..<countForSupplement {
+            let supplementTile = tailTiles.removeLast()
+            tilesWithoutDragon.append(supplementTile)
+            print("[补花 \(supplementTile)]")
+            switch supplementTile {
+            case .dragon:
+                tilesWithoutDragon = flowerSupplementForWind(wind, tiles: tilesWithoutDragon)
+            default:
+                 break
+            }
+        }
+        return tilesWithoutDragon
+    }
+    
     //获取手牌
     func getTiles(_ wind: MahjongTile.Wind) -> [MahjongTile] {
         switch wind {
@@ -276,6 +363,14 @@ class MahjongTable {
             northTiles.append(tile)
         }
         print("[\(wind)摸牌] \(tile)")
+        
+        //如果抓到花牌进行补花
+        switch tile {
+        case .dragon:
+            flowerSupplementForWind(wind)
+        default:
+            break
+        }
     }
     
     //出牌

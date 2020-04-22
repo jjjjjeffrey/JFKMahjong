@@ -55,7 +55,7 @@ class Gamer {
 
 class GuanNanMahjongScene: JKScene {
     
-    let table = MahjongTable()
+    var table = MahjongTable()
     
     var exitButtonClicked = PassthroughSubject<Void, Never>()
     
@@ -77,24 +77,54 @@ class GuanNanMahjongScene: JKScene {
     private var southDiscardedNodes: [JKButtonNode] = []
     private var westDiscardedNodes: [JKButtonNode] = []
     private var northDiscardedNodes: [JKButtonNode] = []
+    //花牌
+    private var myFlowerTileNodes: [JKButtonNode] = []
+    private var topFlowerTileNodes: [JKButtonNode] = []
+    private var leftFlowerTileNodes: [JKButtonNode] = []
+    private var rightFlowerTileNodes: [JKButtonNode] = []
     
     override func sceneDidLoad() {
+        bindActions()
+        gamer1.joinTable(table)
+        gamer2.joinTable(table)
+        gamer3.joinTable(table)
+        gamer4.joinTable(table)
+    }
+    
+    override func didMove(to view: SKView) {
         
+        startButton.position = CGPoint(x: view.width/2,
+                                      y:view.height/2)
+        addChild(startButton)
+        
+        let restartButton = JKButtonNode()
+        restartButton.setTitle("重新开始", for: .normal)
+        restartButton.clicked.sink { [weak self] button in
+            self?.restart()
+        }.store(in: &cancellables)
+        restartButton.position = CGPoint(x: view.width-restartButton.calculateAccumulatedFrame().width,
+                                      y:view.height-restartButton.calculateAccumulatedFrame().height)
+        addChild(restartButton)
+        
+        let backButton = JKButtonNode()
+        backButton.setTitle("退出", for: .normal)
+        backButton.position = CGPoint(x: view.safeAreaLeft+20, y: view.height-view.safeAreaTop-backButton.calculateAccumulatedFrame().height-20)
+        backButton.clicked.sink { [weak self] button in
+            self?.exitButtonClicked.send()
+        }.store(in: &cancellables)
+        addChild(backButton)
+    }
+    
+    private func bindActions() {
         table.isFull.assign(to: \.isEnabled, on: startButton).store(in: &cancellables)
         
         table.isFull.sink { (full) in
             print("是否满员: \(full)")
         }.store(in: &cancellables)
         
-        gamer1.joinTable(table)
-        gamer2.joinTable(table)
-        gamer3.joinTable(table)
-        gamer4.joinTable(table)
-        
         table.takeTurns.sink { [weak self] (wind) in
             if wind == self?.gamer1.wind, let tiles = self?.table.getTiles(wind), tiles.count < 14 {
                 self?.table.draw(wind: wind)
-                self?.updateMyTilesUI()
             } else if wind == self?.gamer2.wind {
                 self?.gamer2.autoDrawDiscardTile()
             } else if wind == self?.gamer3.wind {
@@ -111,6 +141,8 @@ class GuanNanMahjongScene: JKScene {
                 self?.updateLeftTilesUI()
             } else if wind == self?.gamer1.wind?.next() {
                 self?.updateRightTilesUI()
+            } else {
+                self?.updateMyTilesUI()
             }
         }.store(in: &cancellables)
         
@@ -118,40 +150,67 @@ class GuanNanMahjongScene: JKScene {
             self?.updateDiscardedTilesUI(wind: wind, tiles: tiles)
         }.store(in: &cancellables)
         
+        table.gamerFlowerTilesChanged.sink { [weak self] (wind, count) in
+            self?.updateFlowerTilesUI(wind: wind, count: count)
+        }.store(in: &cancellables)
+        
         table.isEnd.sink { [weak self] in
             print("游戏结束")
         }.store(in: &cancellables)
     }
     
-    override func didMove(to view: SKView) {
+    private func restart() {
+        removeAllTilesNode()
         
-        startButton.position = CGPoint(x: view.width/2,
-                                      y:view.height/2)
-        addChild(startButton)
-        
-        let backButton = JKButtonNode()
-        backButton.setTitle("退出", for: .normal)
-        backButton.position = CGPoint(x: view.safeAreaLeft+20, y: view.height-view.safeAreaTop-backButton.calculateAccumulatedFrame().height-20)
-        backButton.clicked.sink { [weak self] button in
-            self?.exitButtonClicked.send()
-        }.store(in: &cancellables)
-        addChild(backButton)
+        table = MahjongTable()
+        bindActions()
+        gamer1.joinTable(table)
+        gamer2.joinTable(table)
+        gamer3.joinTable(table)
+        gamer4.joinTable(table)
+        startGame()
     }
     
-    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
-        
-    }
-    
-    override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
-        
-    }
-    
-    override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
-
-    }
-    
-    override func touchesCancelled(_ touches: Set<UITouch>, with event: UIEvent?) {
-        
+    private func removeAllTilesNode() {
+        //手牌
+        myTileNodes.forEach { (node) in
+            node.removeFromParent()
+        }
+        topTileNodes.forEach { (node) in
+            node.removeFromParent()
+        }
+        leftTileNodes.forEach { (node) in
+            node.removeFromParent()
+        }
+        rightTileNodes.forEach { (node) in
+            node.removeFromParent()
+        }
+        //出过的牌
+        eastDiscardedNodes.forEach { (node) in
+            node.removeFromParent()
+        }
+        southDiscardedNodes.forEach { (node) in
+            node.removeFromParent()
+        }
+        westDiscardedNodes.forEach { (node) in
+            node.removeFromParent()
+        }
+        northDiscardedNodes.forEach { (node) in
+            node.removeFromParent()
+        }
+        //花牌
+        myFlowerTileNodes.forEach { (node) in
+            node.removeFromParent()
+        }
+        topFlowerTileNodes.forEach { (node) in
+            node.removeFromParent()
+        }
+        leftFlowerTileNodes.forEach { (node) in
+            node.removeFromParent()
+        }
+        rightFlowerTileNodes.forEach { (node) in
+            node.removeFromParent()
+        }
     }
     
     //MARK: - Private
@@ -307,7 +366,7 @@ class GuanNanMahjongScene: JKScene {
     private var centerAreaBottomLeftPoint: CGPoint {
         get {
             let x = (view!.width-centerAreaWidth)/2
-            let y = (view!.height-centerAreaHeight)/2
+            let y = (view!.height-centerAreaHeight)/2 + bottomDiscardTileHeight
             return CGPoint(x: x, y: y)
         }
     }
@@ -424,6 +483,104 @@ class GuanNanMahjongScene: JKScene {
         }
     }
     
+    //本家花牌布局参数
+    private var bottomFlowerTileWidth: CGFloat {
+        get {
+            return myTileWidth/2
+        }
+    }
+    
+    private var bottomFlowerTileHeight: CGFloat {
+        get {
+            return myTileHeight/2
+        }
+    }
+    
+    private var bottomFlowerTileLeftBegin: CGFloat {
+        get {
+            return myTileLeftBegin
+        }
+    }
+    
+    private var bottomFlowerTileBottomBegin: CGFloat {
+        get {
+            return myTileBottomBegin + myTileHeight/2 + bottomFlowerTileHeight/2 + 5
+        }
+    }
+    //上家花牌布局参数
+    private var leftFlowerTileWidth: CGFloat {
+        get {
+            return leftDiscardTileWidth
+        }
+    }
+    
+    private var leftFlowerTileHeight: CGFloat {
+        get {
+            return leftDiscardTileHeight
+        }
+    }
+    
+    private var leftFlowerTileLeftBegin: CGFloat {
+        get {
+            return leftTileLeftBegin + leftTileWidth/2 + leftFlowerTileWidth/2 + 5
+        }
+    }
+    
+    private var leftFlowerTileBottomBegin: CGFloat {
+        get {
+            return leftTileBottomBegin
+        }
+    }
+    //对家花牌布局参数
+    private var topFlowerTileWidth: CGFloat {
+        get {
+            return topDiscardTileWidth
+        }
+    }
+    
+    private var topFlowerTileHeight: CGFloat {
+        get {
+            return topDiscardTileHeight
+        }
+    }
+    
+    private var topFlowerTileLeftBegin: CGFloat {
+        get {
+            return topTileLeftBegin
+        }
+    }
+    
+    private var topFlowerTileBottomBegin: CGFloat {
+        get {
+            return topTileBottomBegin - topTileHeight/2 - topFlowerTileHeight/2 - 5
+        }
+    }
+    
+    //下家花牌布局参数
+    private var rightFlowerTileWidth: CGFloat {
+        get {
+            return rightDiscardTileWidth
+        }
+    }
+    
+    private var rightFlowerTileHeight: CGFloat {
+        get {
+            return rightDiscardTileHeight
+        }
+    }
+    
+    private var rightFlowerTileLeftBegin: CGFloat {
+        get {
+            return rightTileLeftBegin - rightTileWidth/2 - rightFlowerTileWidth/2 - 5
+        }
+    }
+    
+    private var rightFlowerTileBottomBegin: CGFloat {
+        get {
+            return rightTileBottomBegin
+        }
+    }
+    
     private func startGame() {
         
         startButton.removeFromParent()
@@ -436,8 +593,9 @@ class GuanNanMahjongScene: JKScene {
         table.throwDies()
         //发牌
         table.deal()
+        //补花
+        table.flowerSupplement()
         
-        updateMyTilesUI()
     }
     
     //刷新当前玩家手牌UI
@@ -542,6 +700,7 @@ class GuanNanMahjongScene: JKScene {
         }
     }
     
+    //更新已出牌UI
     private func updateDiscardedTilesUI(wind: MahjongTile.Wind, tiles: [MahjongTile]) {
         
         switch wind {
@@ -630,6 +789,71 @@ class GuanNanMahjongScene: JKScene {
         }
         
         
+    }
+    //更新花牌UI
+    private func updateFlowerTilesUI(wind: MahjongTile.Wind, count: Int) {
+        
+        if wind == gamer1.wind?.previous().previous() {
+            //对家
+            topFlowerTileNodes.forEach { (node) in
+                node.removeFromParent()
+            }
+        } else if wind == gamer1.wind?.previous() {
+            //上家
+            leftFlowerTileNodes.forEach { (node) in
+                node.removeFromParent()
+            }
+        } else if wind == gamer1.wind?.next() {
+            //下家
+            rightFlowerTileNodes.forEach { (node) in
+                node.removeFromParent()
+            }
+        } else {
+            //本家
+            myFlowerTileNodes.forEach { (node) in
+                node.removeFromParent()
+            }
+        }
+        
+        var z: CGFloat = 0
+        for i in 0..<count {
+            let tileNode = JKButtonNode()
+            if wind == gamer1.wind?.previous().previous() {
+                //对家
+                tileNode.setImage(MahjongTile.dragon(.red).discardedTopImageName, size: CGSize(width: topFlowerTileWidth, height: topFlowerTileHeight), for: .normal)
+                tileNode.position = CGPoint(x: topFlowerTileLeftBegin-CGFloat(i)*topFlowerTileWidth, y: topFlowerTileBottomBegin)
+                tileNode.zPosition = z
+                addChild(tileNode)
+                z += 0.01
+                topFlowerTileNodes.append(tileNode)
+            } else if wind == gamer1.wind?.previous() {
+                //上家
+                tileNode.setImage(MahjongTile.dragon(.red).discardedLeftImageName, size: CGSize(width: leftFlowerTileWidth, height: leftFlowerTileHeight), for: .normal)
+                tileNode.position = CGPoint(x: leftFlowerTileLeftBegin, y: leftFlowerTileBottomBegin-CGFloat(i)*leftFlowerTileHeight*118/170)
+                tileNode.zPosition = z
+                addChild(tileNode)
+                z += 0.01
+                leftFlowerTileNodes.append(tileNode)
+            } else if wind == gamer1.wind?.next() {
+                //下家
+                tileNode.setImage(MahjongTile.dragon(.red).discardedRightImageName, size: CGSize(width: rightFlowerTileWidth, height: rightFlowerTileHeight), for: .normal)
+                tileNode.position = CGPoint(x: rightFlowerTileLeftBegin, y: rightFlowerTileBottomBegin+CGFloat(i)*rightFlowerTileHeight*118/170)
+                tileNode.zPosition = z
+                addChild(tileNode)
+                z -= 0.01
+                rightFlowerTileNodes.append(tileNode)
+            } else {
+                //本家
+                z -= 0.01
+                tileNode.setImage(MahjongTile.dragon(.red).discardedBottomImageName, size: CGSize(width: bottomFlowerTileWidth, height: bottomFlowerTileHeight), for: .normal)
+                tileNode.position = CGPoint(x: bottomFlowerTileLeftBegin+CGFloat(i)*bottomFlowerTileWidth, y: bottomFlowerTileBottomBegin)
+                tileNode.zPosition = z
+                addChild(tileNode)
+                z -= 0.01
+                myFlowerTileNodes.append(tileNode)
+            }
+            
+        }
     }
     
     private func activeTile(_ button: JKButtonNode) {

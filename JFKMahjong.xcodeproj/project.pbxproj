@@ -18,9 +18,6 @@
 		01632108244015D400788C24 /* JKViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01632107244015D400788C24 /* JKViewController.swift */; };
 		01B87628243D918300C56B83 /* GameHallScene.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01B87627243D918300C56B83 /* GameHallScene.swift */; };
 		01DA03FA242DF1CC00509DB3 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01DA03F9242DF1CC00509DB3 /* AppDelegate.swift */; };
-		01DA03FC242DF1CC00509DB3 /* GameScene.sks in Resources */ = {isa = PBXBuildFile; fileRef = 01DA03FB242DF1CC00509DB3 /* GameScene.sks */; };
-		01DA03FE242DF1CC00509DB3 /* Actions.sks in Resources */ = {isa = PBXBuildFile; fileRef = 01DA03FD242DF1CC00509DB3 /* Actions.sks */; };
-		01DA0400242DF1CC00509DB3 /* GameScene.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01DA03FF242DF1CC00509DB3 /* GameScene.swift */; };
 		01DA0402242DF1CC00509DB3 /* GameViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01DA0401242DF1CC00509DB3 /* GameViewController.swift */; };
 		01DA0407242DF1CD00509DB3 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 01DA0406242DF1CD00509DB3 /* Assets.xcassets */; };
 		01DA040A242DF1CD00509DB3 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 01DA0408242DF1CD00509DB3 /* LaunchScreen.storyboard */; };
@@ -61,9 +58,6 @@
 		01B87627243D918300C56B83 /* GameHallScene.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameHallScene.swift; sourceTree = "<group>"; };
 		01DA03F6242DF1CC00509DB3 /* JFKMahjong.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = JFKMahjong.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		01DA03F9242DF1CC00509DB3 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
-		01DA03FB242DF1CC00509DB3 /* GameScene.sks */ = {isa = PBXFileReference; lastKnownFileType = file.sks; path = GameScene.sks; sourceTree = "<group>"; };
-		01DA03FD242DF1CC00509DB3 /* Actions.sks */ = {isa = PBXFileReference; lastKnownFileType = file.sks; path = Actions.sks; sourceTree = "<group>"; };
-		01DA03FF242DF1CC00509DB3 /* GameScene.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameScene.swift; sourceTree = "<group>"; };
 		01DA0401242DF1CC00509DB3 /* GameViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameViewController.swift; sourceTree = "<group>"; };
 		01DA0406242DF1CD00509DB3 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		01DA0409242DF1CD00509DB3 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
@@ -168,9 +162,6 @@
 				01E029CF242DF5E500666B41 /* JFKMahjong.entitlements */,
 				01DA03F9242DF1CC00509DB3 /* AppDelegate.swift */,
 				01010CCA244D74AF0015FBA7 /* AppSceneDelegate.swift */,
-				01DA03FB242DF1CC00509DB3 /* GameScene.sks */,
-				01DA03FD242DF1CC00509DB3 /* Actions.sks */,
-				01DA03FF242DF1CC00509DB3 /* GameScene.swift */,
 				01DA0401242DF1CC00509DB3 /* GameViewController.swift */,
 				0163210924401AC700788C24 /* Base */,
 				01069742243D958900874495 /* GameLaunchScene */,
@@ -315,10 +306,8 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				01DA03FC242DF1CC00509DB3 /* GameScene.sks in Resources */,
 				01DA0407242DF1CD00509DB3 /* Assets.xcassets in Resources */,
 				01DA040A242DF1CD00509DB3 /* LaunchScreen.storyboard in Resources */,
-				01DA03FE242DF1CC00509DB3 /* Actions.sks in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -343,7 +332,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				01DA0400242DF1CC00509DB3 /* GameScene.swift in Sources */,
 				01DA0402242DF1CC00509DB3 /* GameViewController.swift in Sources */,
 				016321062440136700788C24 /* SKView+Extensions.swift in Sources */,
 				016321042440129B00788C24 /* JKScene.swift in Sources */,
