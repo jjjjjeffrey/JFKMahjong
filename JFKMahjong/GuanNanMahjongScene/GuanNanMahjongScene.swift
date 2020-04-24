@@ -40,16 +40,20 @@ class Gamer {
         guard let wind = wind else {
             return
         }
-        var tiles = table?.getTiles(wind) ?? []
-        if tiles.count < 14 {
-            table?.draw(wind: wind)
-            tiles = table?.getTiles(wind) ?? []
-        }
+        table?.draw(wind: wind)
         let deadlineTime = DispatchTime.now() + .seconds(1)
         DispatchQueue.main.asyncAfter(deadline: deadlineTime) { [weak self] in
-            let tiles = self?.table?.getTiles(wind) ?? []
-            self?.table?.discard(wind: wind, tileIndex: tiles.endIndex-1)
+            self?.autoDiscardTile()
         }
+    }
+    
+    //自动出牌
+    func autoDiscardTile() {
+        guard let wind = wind else {
+            return
+        }
+        let tiles = table?.getTiles(wind) ?? []
+        table?.discard(wind: wind, tileIndex: tiles.endIndex-1)
     }
 }
 
@@ -82,6 +86,11 @@ class GuanNanMahjongScene: JKScene {
     private var topFlowerTileNodes: [JKButtonNode] = []
     private var leftFlowerTileNodes: [JKButtonNode] = []
     private var rightFlowerTileNodes: [JKButtonNode] = []
+    //碰牌
+    private var myPoneTileNodes: [JKButtonNode] = []
+    private var topPoneTileNodes: [JKButtonNode] = []
+    private var leftPoneTileNodes: [JKButtonNode] = []
+    private var rightPoneTileNodes: [JKButtonNode] = []
     
     override func sceneDidLoad() {
         bindActions()
@@ -122,15 +131,31 @@ class GuanNanMahjongScene: JKScene {
             print("是否满员: \(full)")
         }.store(in: &cancellables)
         
-        table.takeTurns.sink { [weak self] (wind) in
-            if wind == self?.gamer1.wind, let tiles = self?.table.getTiles(wind), tiles.count < 14 {
-                self?.table.draw(wind: wind)
+        table.takeTurns.sink { [weak self] (wind, needDraw) in
+            if wind == self?.gamer1.wind {
+                if needDraw {
+                    self?.table.draw(wind: wind)
+                } else {
+                    self?.updateMyTilesUI()
+                }
             } else if wind == self?.gamer2.wind {
-                self?.gamer2.autoDrawDiscardTile()
+                if needDraw {
+                    self?.gamer2.autoDrawDiscardTile()
+                } else {
+                    self?.gamer2.autoDiscardTile()
+                }
             } else if wind == self?.gamer3.wind {
-                self?.gamer3.autoDrawDiscardTile()
+                if needDraw {
+                    self?.gamer3.autoDrawDiscardTile()
+                } else {
+                    self?.gamer3.autoDiscardTile()
+                }
             } else if wind == self?.gamer4.wind {
-                self?.gamer4.autoDrawDiscardTile()
+                if needDraw {
+                    self?.gamer4.autoDrawDiscardTile()
+                } else {
+                    self?.gamer4.autoDiscardTile()
+                }
             }
         }.store(in: &cancellables)
         
@@ -154,6 +179,22 @@ class GuanNanMahjongScene: JKScene {
             self?.updateFlowerTilesUI(wind: wind, count: count)
         }.store(in: &cancellables)
         
+        table.pong.sink { [weak self] (pongWind, discardWind) in
+            if pongWind == self?.gamer1.wind {
+                self?.showPoneButton()
+            } else if pongWind == self?.gamer2.wind {
+                self?.table.pong(pongWind)
+            } else if pongWind == self?.gamer3.wind {
+                self?.table.pong(pongWind)
+            } else if pongWind == self?.gamer4.wind {
+                self?.table.pong(pongWind)
+            }
+        }.store(in: &cancellables)
+        
+        table.poneTilesChanged.sink { [weak self] (wind, allTiles) in
+            self?.updatePoneTilesUI(wind: wind, allTiles: allTiles)
+        }.store(in: &cancellables)
+        
         table.isEnd.sink { [weak self] in
             print("游戏结束")
         }.store(in: &cancellables)
@@ -171,46 +212,45 @@ class GuanNanMahjongScene: JKScene {
         startGame()
     }
     
+    private func showPoneButton() {
+        poneButton.position = CGPoint(x: view!.width-poneButton.calculateAccumulatedFrame().width, y: myTileBottomBegin+poneButton.calculateAccumulatedFrame().height)
+        addChild(poneButton)
+    }
+    
     private func removeAllTilesNode() {
-        //手牌
-        myTileNodes.forEach { (node) in
-            node.removeFromParent()
+        
+        let allTileNodes = [
+            myTileNodes, topTileNodes, leftTileNodes, rightTileNodes,
+            eastDiscardedNodes, southDiscardedNodes, westDiscardedNodes, northDiscardedNodes,
+            myFlowerTileNodes, topFlowerTileNodes, leftFlowerTileNodes, rightFlowerTileNodes,
+            myPoneTileNodes, topPoneTileNodes, leftPoneTileNodes, rightPoneTileNodes
+        ]
+        
+        allTileNodes.forEach { (nodes) in
+            nodes.forEach { (node) in
+                node.removeFromParent()
+            }
         }
-        topTileNodes.forEach { (node) in
-            node.removeFromParent()
-        }
-        leftTileNodes.forEach { (node) in
-            node.removeFromParent()
-        }
-        rightTileNodes.forEach { (node) in
-            node.removeFromParent()
-        }
-        //出过的牌
-        eastDiscardedNodes.forEach { (node) in
-            node.removeFromParent()
-        }
-        southDiscardedNodes.forEach { (node) in
-            node.removeFromParent()
-        }
-        westDiscardedNodes.forEach { (node) in
-            node.removeFromParent()
-        }
-        northDiscardedNodes.forEach { (node) in
-            node.removeFromParent()
-        }
-        //花牌
-        myFlowerTileNodes.forEach { (node) in
-            node.removeFromParent()
-        }
-        topFlowerTileNodes.forEach { (node) in
-            node.removeFromParent()
-        }
-        leftFlowerTileNodes.forEach { (node) in
-            node.removeFromParent()
-        }
-        rightFlowerTileNodes.forEach { (node) in
-            node.removeFromParent()
-        }
+        
+        myTileNodes.removeAll()
+        topTileNodes.removeAll()
+        leftTileNodes.removeAll()
+        rightTileNodes.removeAll()
+        
+        eastDiscardedNodes.removeAll()
+        southDiscardedNodes.removeAll()
+        westDiscardedNodes.removeAll()
+        northDiscardedNodes.removeAll()
+        
+        myFlowerTileNodes.removeAll()
+        topFlowerTileNodes.removeAll()
+        leftFlowerTileNodes.removeAll()
+        rightFlowerTileNodes.removeAll()
+        
+        myPoneTileNodes.removeAll()
+        topPoneTileNodes.removeAll()
+        leftPoneTileNodes.removeAll()
+        rightPoneTileNodes.removeAll()
     }
     
     //MARK: - Private
@@ -223,6 +263,22 @@ class GuanNanMahjongScene: JKScene {
         }.store(in: &cancellables)
         return b
     }()
+    
+    private lazy var poneButton: JKButtonNode = {
+        let b = JKButtonNode()
+        b.setTitle("碰", for: .normal)
+        b.clicked.sink { [weak self] button in
+            self?.pone()
+            self?.poneButton.removeFromParent()
+        }.store(in: &cancellables)
+        return b
+    }()
+    
+    private func pone() {
+        if let wind = gamer1.wind {
+            table.pong(wind)
+        }
+    }
     
     private weak var currentActiveTile: JKButtonNode?
     
@@ -237,6 +293,12 @@ class GuanNanMahjongScene: JKScene {
     private var myTileHeight: CGFloat {
         get {
             return 194/128*myTileWidth
+        }
+    }
+    //本家手牌间隔距离
+    private var myTileGap: CGFloat {
+        get {
+            return myTileWidth/10
         }
     }
     
@@ -265,6 +327,12 @@ class GuanNanMahjongScene: JKScene {
             return bottomDiscardTileHeight
         }
     }
+    //对家手牌间隔距离
+    private var topTileGap: CGFloat {
+        get {
+            return topTileWidth/10
+        }
+    }
     
     //对家手牌左侧起始位置
     private var topTileLeftBegin: CGFloat {
@@ -289,6 +357,12 @@ class GuanNanMahjongScene: JKScene {
     private var leftTileHeight: CGFloat {
         get {
             return topTileHeight
+        }
+    }
+    //上家手牌间隔距离
+    private var leftTileGap: CGFloat {
+        get {
+            return leftTileHeight/10
         }
     }
     
@@ -317,6 +391,12 @@ class GuanNanMahjongScene: JKScene {
     private var rightTileHeight: CGFloat {
         get {
             return leftTileHeight
+        }
+    }
+    //下家手牌间隔距离
+    private var rightTileGap: CGFloat {
+        get {
+            return rightTileHeight/10
         }
     }
     
@@ -352,28 +432,28 @@ class GuanNanMahjongScene: JKScene {
     private var centerAreaTopLeftPoint: CGPoint {
         get {
             let x = (view!.width-centerAreaWidth)/2
-            let y = (view!.height-centerAreaHeight)/2 + centerAreaHeight
+            let y = (view!.height-centerAreaHeight)/2 + centerAreaHeight + bottomDiscardTileHeight*2/3
             return CGPoint(x: x, y: y)
         }
     }
     private var centerAreaTopRightPoint: CGPoint {
         get {
             let x = centerAreaWidth+(view!.width-centerAreaWidth)/2
-            let y = (view!.height-centerAreaHeight)/2 + centerAreaHeight
+            let y = (view!.height-centerAreaHeight)/2 + centerAreaHeight + bottomDiscardTileHeight*2/3
             return CGPoint(x: x, y: y)
         }
     }
     private var centerAreaBottomLeftPoint: CGPoint {
         get {
             let x = (view!.width-centerAreaWidth)/2
-            let y = (view!.height-centerAreaHeight)/2 + bottomDiscardTileHeight
+            let y = (view!.height-centerAreaHeight)/2 + bottomDiscardTileHeight*2/3
             return CGPoint(x: x, y: y)
         }
     }
     private var centerAreaBottomRightPoint: CGPoint {
         get {
             let x = centerAreaWidth+(view!.width-centerAreaWidth)/2
-            let y = (view!.height-centerAreaHeight)/2
+            let y = (view!.height-centerAreaHeight)/2 + bottomDiscardTileHeight*2/3
             return CGPoint(x: x, y: y)
         }
     }
@@ -581,6 +661,104 @@ class GuanNanMahjongScene: JKScene {
         }
     }
     
+    //本家碰牌布局参数
+    private var bottomPoneTileWidth: CGFloat {
+        get {
+            return myTileWidth*3/4
+        }
+    }
+    
+    private var bottomPoneTileHeight: CGFloat {
+        get {
+            return myTileHeight*3/4
+        }
+    }
+    
+    private var bottomPoneTileLeftBegin: CGFloat {
+        get {
+            return myTileLeftBegin+CGFloat(myTileNodes.count)*myTileWidth
+        }
+    }
+    
+    private var bottomPoneTileBottomBegin: CGFloat {
+        get {
+            return myTileBottomBegin - (myTileHeight-bottomPoneTileHeight)/2
+        }
+    }
+    //上家碰牌布局参数
+    private var leftPoneTileWidth: CGFloat {
+        get {
+            return leftDiscardTileWidth
+        }
+    }
+    
+    private var leftPoneTileHeight: CGFloat {
+        get {
+            return leftDiscardTileHeight
+        }
+    }
+    
+    private var leftPoneTileLeftBegin: CGFloat {
+        get {
+            return leftTileLeftBegin
+        }
+    }
+    
+    private var leftPoneTileBottomBegin: CGFloat {
+        get {
+            return leftTileBottomBegin - CGFloat(leftTileNodes.count-1)*leftTileHeight*73/134 - leftTileHeight
+        }
+    }
+    //对家碰牌布局参数
+    private var topPoneTileWidth: CGFloat {
+        get {
+            return topDiscardTileWidth
+        }
+    }
+    
+    private var topPoneTileHeight: CGFloat {
+        get {
+            return topDiscardTileHeight
+        }
+    }
+    
+    private var topPoneTileLeftBegin: CGFloat {
+        get {
+            return topTileLeftBegin - CGFloat(topTileNodes.count)*topTileWidth
+        }
+    }
+    
+    private var topPoneTileBottomBegin: CGFloat {
+        get {
+            return topTileBottomBegin + (topTileHeight-topPoneTileHeight)/2
+        }
+    }
+    
+    //下家碰牌布局参数
+    private var rightPoneTileWidth: CGFloat {
+        get {
+            return rightDiscardTileWidth
+        }
+    }
+    
+    private var rightPoneTileHeight: CGFloat {
+        get {
+            return rightDiscardTileHeight
+        }
+    }
+    
+    private var rightPoneTileLeftBegin: CGFloat {
+        get {
+            return rightTileLeftBegin
+        }
+    }
+    
+    private var rightPoneTileBottomBegin: CGFloat {
+        get {
+            return rightTileBottomBegin + CGFloat(rightTileNodes.count-1)*rightTileHeight*73/134 + rightTileHeight
+        }
+    }
+    
     private func startGame() {
         
         startButton.removeFromParent()
@@ -593,8 +771,6 @@ class GuanNanMahjongScene: JKScene {
         table.throwDies()
         //发牌
         table.deal()
-        //补花
-        table.flowerSupplement()
         
     }
     
@@ -606,17 +782,21 @@ class GuanNanMahjongScene: JKScene {
         myTileNodes.forEach { (node) in
             node.removeFromParent()
         }
+        myTileNodes.removeAll()
         let mytiles = table.getTiles(wind)
         
+        var z: CGFloat = 1.0
         for (i,tile) in mytiles.enumerated() {
             var left = myTileLeftBegin+CGFloat(i)*myTileWidth
-            if i == 13 {
-                left += 10
+            if i == mytiles.endIndex-1 && table.currentTurnWind == gamer1.wind {
+                left += myTileGap
             }
             let tileNode = JKButtonNode()
             tileNode.tag = i
             tileNode.setImage(tile.imageName, size: CGSize(width: myTileWidth, height: myTileHeight), for: .normal)
             tileNode.position = CGPoint(x: left, y: myTileBottomBegin)
+            tileNode.zPosition = z
+            z += 0.01
             tileNode.clicked.sink { [weak self] button in
                 if button.isSelected {
                     self?.discardTile(button.tag)
@@ -636,6 +816,7 @@ class GuanNanMahjongScene: JKScene {
         topTileNodes.forEach { (node) in
             node.removeFromParent()
         }
+        topTileNodes.removeAll()
         let tilesCount = table.getTiles(wind).count
         for i in 0..<tilesCount {
             var left = topTileLeftBegin-CGFloat(i)*topTileWidth
@@ -658,6 +839,7 @@ class GuanNanMahjongScene: JKScene {
         leftTileNodes.forEach { (node) in
             node.removeFromParent()
         }
+        leftTileNodes.removeAll()
         var z: CGFloat = 0
         let tilesCount = table.getTiles(wind).count
         for i in 0..<tilesCount {
@@ -683,6 +865,7 @@ class GuanNanMahjongScene: JKScene {
         rightTileNodes.forEach { (node) in
             node.removeFromParent()
         }
+        rightTileNodes.removeAll()
         var z: CGFloat = 0
         let tilesCount = table.getTiles(wind).count
         for i in 0..<tilesCount {
@@ -853,6 +1036,75 @@ class GuanNanMahjongScene: JKScene {
                 myFlowerTileNodes.append(tileNode)
             }
             
+        }
+    }
+    
+    //更新碰牌UI
+    private func updatePoneTilesUI(wind: MahjongTile.Wind, allTiles: [[MahjongTile]]) {
+        if wind == gamer1.wind?.previous().previous() {
+            //对家
+            topPoneTileNodes.forEach { (node) in
+                node.removeFromParent()
+            }
+            topPoneTileNodes.removeAll()
+        } else if wind == gamer1.wind?.previous() {
+            //上家
+            leftPoneTileNodes.forEach { (node) in
+                node.removeFromParent()
+            }
+            leftPoneTileNodes.removeAll()
+        } else if wind == gamer1.wind?.next() {
+            //下家
+            rightPoneTileNodes.forEach { (node) in
+                node.removeFromParent()
+            }
+            rightPoneTileNodes.removeAll()
+        } else {
+            //本家
+            myPoneTileNodes.forEach { (node) in
+                node.removeFromParent()
+            }
+            myPoneTileNodes.removeAll()
+        }
+        
+        var z: CGFloat = 0
+        for (j,tiles) in allTiles.enumerated() {
+            for (i,tile) in tiles.enumerated() {
+                let tileNode = JKButtonNode()
+                if wind == gamer1.wind?.previous().previous() {
+                    //对家
+                    tileNode.setImage(tile.discardedTopImageName, size: CGSize(width: topPoneTileWidth, height: topPoneTileHeight), for: .normal)
+                    tileNode.position = CGPoint(x: topPoneTileLeftBegin-topTileGap-CGFloat(i)*topPoneTileWidth-CGFloat(j)*(3*topPoneTileWidth+topTileGap), y: topPoneTileBottomBegin)
+                    tileNode.zPosition = z
+                    addChild(tileNode)
+                    z += 0.01
+                    topPoneTileNodes.append(tileNode)
+                } else if wind == gamer1.wind?.previous() {
+                    //上家
+                    tileNode.setImage(tile.discardedLeftImageName, size: CGSize(width: leftPoneTileWidth, height: leftPoneTileHeight), for: .normal)
+                    tileNode.position = CGPoint(x: leftPoneTileLeftBegin, y: leftPoneTileBottomBegin-leftTileGap-CGFloat(i)*leftPoneTileHeight*118/170-CGFloat(j)*(2*leftPoneTileHeight*118/170+leftPoneTileHeight))
+                    tileNode.zPosition = z
+                    addChild(tileNode)
+                    z += 0.01
+                    leftPoneTileNodes.append(tileNode)
+                } else if wind == gamer1.wind?.next() {
+                    //下家
+                    tileNode.setImage(tile.discardedRightImageName, size: CGSize(width: rightPoneTileWidth, height: rightPoneTileHeight), for: .normal)
+                    tileNode.position = CGPoint(x: rightPoneTileLeftBegin, y: rightPoneTileBottomBegin+rightTileGap+CGFloat(i)*rightPoneTileHeight*118/170+CGFloat(j)*(2*rightPoneTileHeight*118/170+rightPoneTileHeight))
+                    tileNode.zPosition = z
+                    addChild(tileNode)
+                    z -= 0.01
+                    rightPoneTileNodes.append(tileNode)
+                } else {
+                    //本家
+                    tileNode.setImage(tile.discardedBottomImageName, size: CGSize(width: bottomPoneTileWidth, height: bottomPoneTileHeight), for: .normal)
+                    tileNode.position = CGPoint(x: bottomPoneTileLeftBegin+myTileGap+CGFloat(i)*bottomPoneTileWidth+CGFloat(j)*(3*bottomPoneTileWidth+myTileGap), y: bottomPoneTileBottomBegin)
+                    tileNode.zPosition = z
+                    addChild(tileNode)
+                    z += 0.01
+                    myPoneTileNodes.append(tileNode)
+                }
+            }
         }
     }
     

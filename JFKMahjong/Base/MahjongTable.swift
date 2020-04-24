@@ -8,6 +8,7 @@
 
 import Foundation
 import Combine
+import SwifterSwift
 
 class Die {
     var value: Int = 1
@@ -30,8 +31,12 @@ class MahjongTable {
     var isFull = PassthroughSubject<Bool, Never>()
     //流局
     var isEnd = PassthroughSubject<Void, Never>()
-    //轮到谁出牌
-    var takeTurns = PassthroughSubject<MahjongTile.Wind, Never>()
+    //轮到谁出牌(出牌方，是否需要先抓牌)，碰牌后不需要抓牌
+    var takeTurns = PassthroughSubject<(MahjongTile.Wind, Bool), Never>()
+    //轮到谁决定是否碰牌(碰方，被碰方)
+    var pong = PassthroughSubject<(MahjongTile.Wind, MahjongTile.Wind), Never>()
+    //碰牌变化
+    var poneTilesChanged = PassthroughSubject<(MahjongTile.Wind,[[MahjongTile]]), Never>()
     //出牌变化
     var discardedTilesChanged = PassthroughSubject<(MahjongTile.Wind,[MahjongTile]), Never>()
     //玩家手牌变化
@@ -52,13 +57,7 @@ class MahjongTable {
     }
     
     //当前出牌位置
-    private(set) var currentTurnWind: MahjongTile.Wind? {
-        didSet {
-            if let wind = currentTurnWind {
-                takeTurns.send(wind)
-            }
-        }
-    }
+    private(set) var currentTurnWind: MahjongTile.Wind?
     
     //当前手牌
     private var eastTiles: [MahjongTile] = [] {
@@ -102,11 +101,49 @@ class MahjongTable {
                gamerFlowerTilesChanged.send((.north, northFlowerTilesCount))
            }
     }
+    //当前碰过的牌
+    private var eastPoneTiles: [[MahjongTile]] = [] {
+        didSet {
+            poneTilesChanged.send((.east, eastPoneTiles))
+        }
+    }
+    private var southPoneTiles: [[MahjongTile]] = [] {
+           didSet {
+               poneTilesChanged.send((.south, southPoneTiles))
+           }
+       }
+    private var westPoneTiles: [[MahjongTile]] = [] {
+           didSet {
+               poneTilesChanged.send((.west, westPoneTiles))
+           }
+       }
+    private var northPoneTiles: [[MahjongTile]] = [] {
+           didSet {
+               poneTilesChanged.send((.north, northPoneTiles))
+           }
+       }
+    
     //出过的牌
-    private var eastDiscardedTiles: [MahjongTile] = []
-    private var southDiscardedTiles: [MahjongTile] = []
-    private var westDiscardedTiles: [MahjongTile] = []
-    private var northDiscardedTiles: [MahjongTile] = []
+    private var eastDiscardedTiles: [MahjongTile] = [] {
+        didSet {
+            discardedTilesChanged.send((.east, eastDiscardedTiles))
+        }
+    }
+    private var southDiscardedTiles: [MahjongTile] = [] {
+        didSet {
+            discardedTilesChanged.send((.south, southDiscardedTiles))
+        }
+    }
+    private var westDiscardedTiles: [MahjongTile] = [] {
+        didSet {
+            discardedTilesChanged.send((.west, westDiscardedTiles))
+        }
+    }
+    private var northDiscardedTiles: [MahjongTile] = [] {
+        didSet {
+            discardedTilesChanged.send((.north, northDiscardedTiles))
+        }
+    }
     
     //剩余待抓牌
     private var tilesRemaining: [MahjongTile] = [] {
@@ -264,8 +301,12 @@ class MahjongTable {
         print(dealResult)
         tilesRemaining = currentTiles
         print("剩余待摸牌\(tilesRemaining.count)张: \(tilesRemaining)")
+        
+        //补花
+        flowerSupplement()
 
         currentTurnWind = dealerWind
+        takeTurns.send((dealerWind, false))
     }
     
     //补花
@@ -381,28 +422,114 @@ class MahjongTable {
             tile = eastTiles.remove(at: tileIndex)
             eastTiles = eastTiles.sort()
             eastDiscardedTiles.append(tile)
-            discardedTilesChanged.send((wind, eastDiscardedTiles))
         case .south:
             tile = southTiles.remove(at: tileIndex)
             southTiles = southTiles.sort()
             southDiscardedTiles.append(tile)
-            discardedTilesChanged.send((wind, southDiscardedTiles))
         case .west:
             tile = westTiles.remove(at: tileIndex)
             westTiles = westTiles.sort()
             westDiscardedTiles.append(tile)
-            discardedTilesChanged.send((wind, westDiscardedTiles))
         case .north:
             tile = northTiles.remove(at: tileIndex)
             northTiles = northTiles.sort()
             northDiscardedTiles.append(tile)
-            discardedTilesChanged.send((wind, northDiscardedTiles))
         }
         print("[\(wind)出牌] \(tile)")
-        if tilesRemaining.count > 0 {
+        
+        if let pongWind = pongCheckForWind(wind, tile: tile) {
+            print("[\(pongWind) 决定是否碰 \(wind) 打出的 \(tile)]")
+            pong.send((pongWind, wind))
+        } else if tilesRemaining.count > 0 {
             currentTurnWind = wind.next()
+            takeTurns.send((wind.next(), true))
         } else {
             isEnd.send()
+        }
+    }
+    
+    //碰牌检测
+    private func pongCheckForWind(_ discardWind: MahjongTile.Wind, tile: MahjongTile) -> MahjongTile.Wind? {
+        
+        let wind1 = discardWind.next()
+        let wind2 = wind1.next()
+        let wind3 = wind2.next()
+        
+        let winds = [wind1, wind2, wind3]
+        
+        for wind in winds {
+            let tiles = getTiles(wind)
+            let tilesForPone = tiles.filter { (t) -> Bool in
+                tile.sortValue == t.sortValue
+            }
+            if tilesForPone.count == 2 {
+                return wind
+            }
+        }
+        return nil
+    }
+    
+    //碰
+    func pong(_ wind: MahjongTile.Wind) {
+        guard let currentTurnWind = currentTurnWind else {
+            return
+        }
+        //要碰的牌是最后出的牌
+        var poneTile: MahjongTile
+        switch currentTurnWind {
+        case .east:
+            poneTile = eastDiscardedTiles.removeLast()
+        case .south:
+            poneTile = southDiscardedTiles.removeLast()
+        case .west:
+            poneTile = westDiscardedTiles.removeLast()
+        case .north:
+            poneTile = northDiscardedTiles.removeLast()
+        }
+        //从碰牌方手牌中找出要碰的牌
+        let tiles = getTiles(wind)
+        var tilesForPone = tiles.filter { (t) -> Bool in
+            poneTile.sortValue == t.sortValue
+        }
+        tilesForPone.append(poneTile)
+        //删除手牌中要碰的牌
+        remove(poneTile, for: wind)
+        
+        switch wind {
+        case .east:
+            eastPoneTiles.append(tilesForPone)
+        case .south:
+            southPoneTiles.append(tilesForPone)
+        case .west:
+            westPoneTiles.append(tilesForPone)
+        case .north:
+            northPoneTiles.append(tilesForPone)
+        }
+        
+        print("[\(wind) 碰 \(tilesForPone)]")
+        
+        self.currentTurnWind = wind
+        takeTurns.send((wind, false))
+    }
+    
+    private func remove(_ tile: MahjongTile, for wind: MahjongTile.Wind) {
+        switch wind {
+        case .east:
+            eastTiles.removeAll { (t) -> Bool in
+                tile.sortValue == t.sortValue
+            }
+        case .south:
+            southTiles.removeAll { (t) -> Bool in
+                tile.sortValue == t.sortValue
+            }
+        case .west:
+            westTiles.removeAll { (t) -> Bool in
+                tile.sortValue == t.sortValue
+            }
+        case .north:
+            northTiles.removeAll { (t) -> Bool in
+                tile.sortValue == t.sortValue
+            }
         }
     }
 }
