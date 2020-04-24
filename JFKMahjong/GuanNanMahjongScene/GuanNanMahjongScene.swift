@@ -218,7 +218,7 @@ class GuanNanMahjongScene: JKScene {
             self?.updateKongOtherTilesUI(wind: wind, allTiles: allTiles)
         }.store(in: &cancellables)
         
-        table.isEnd.sink { in
+        table.isEnd.sink {
             print("游戏结束")
         }.store(in: &cancellables)
     }
@@ -827,18 +827,8 @@ class GuanNanMahjongScene: JKScene {
     }
     
     private func startGame() {
-        
         startButton.removeFromParent()
-        
-        //洗牌
-        table.shufflingTheTiles()
-        //确定庄家
-        table.confirmDealer()
-        //掷骰子确定抓牌位置
-        table.throwDies()
-        //发牌
-        table.deal()
-        
+        table.startGame()
     }
     
     //刷新当前玩家手牌UI

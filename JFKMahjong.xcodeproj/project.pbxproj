@@ -21,7 +21,7 @@
 		01DA0402242DF1CC00509DB3 /* GameViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01DA0401242DF1CC00509DB3 /* GameViewController.swift */; };
 		01DA0407242DF1CD00509DB3 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 01DA0406242DF1CD00509DB3 /* Assets.xcassets */; };
 		01DA040A242DF1CD00509DB3 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 01DA0408242DF1CD00509DB3 /* LaunchScreen.storyboard */; };
-		01DA0415242DF1CD00509DB3 /* JFKMahjongTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01DA0414242DF1CD00509DB3 /* JFKMahjongTests.swift */; };
+		01DA0415242DF1CD00509DB3 /* MahjongTableTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01DA0414242DF1CD00509DB3 /* MahjongTableTests.swift */; };
 		01DA0420242DF1CD00509DB3 /* JFKMahjongUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01DA041F242DF1CD00509DB3 /* JFKMahjongUITests.swift */; };
 		01E029D2242DFB7200666B41 /* Alamofire in Frameworks */ = {isa = PBXBuildFile; productRef = 01E029D1242DFB7200666B41 /* Alamofire */; };
 		01F70A112445C41300A17A58 /* SwifterSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 01F70A102445C41300A17A58 /* SwifterSwift */; };
@@ -63,7 +63,7 @@
 		01DA0409242DF1CD00509DB3 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		01DA040B242DF1CD00509DB3 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		01DA0410242DF1CD00509DB3 /* JFKMahjongTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = JFKMahjongTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		01DA0414242DF1CD00509DB3 /* JFKMahjongTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JFKMahjongTests.swift; sourceTree = "<group>"; };
+		01DA0414242DF1CD00509DB3 /* MahjongTableTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MahjongTableTests.swift; sourceTree = "<group>"; };
 		01DA0416242DF1CD00509DB3 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		01DA041B242DF1CD00509DB3 /* JFKMahjongUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = JFKMahjongUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		01DA041F242DF1CD00509DB3 /* JFKMahjongUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JFKMahjongUITests.swift; sourceTree = "<group>"; };
@@ -177,7 +177,7 @@
 		01DA0413242DF1CD00509DB3 /* JFKMahjongTests */ = {
 			isa = PBXGroup;
 			children = (
-				01DA0414242DF1CD00509DB3 /* JFKMahjongTests.swift */,
+				01DA0414242DF1CD00509DB3 /* MahjongTableTests.swift */,
 				01DA0416242DF1CD00509DB3 /* Info.plist */,
 			);
 			path = JFKMahjongTests;
@@ -351,7 +351,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				01DA0415242DF1CD00509DB3 /* JFKMahjongTests.swift in Sources */,
+				01DA0415242DF1CD00509DB3 /* MahjongTableTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

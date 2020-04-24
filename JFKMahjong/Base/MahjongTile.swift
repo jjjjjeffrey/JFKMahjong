@@ -297,3 +297,5 @@ enum MahjongTile: CustomStringConvertible {
         }
     }
 }
+
+extension MahjongTile: Equatable {}

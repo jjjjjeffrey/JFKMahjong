@@ -10,16 +10,17 @@ import Foundation
 import Combine
 import SwifterSwift
 
-class Die {
-    var value: Int = 1
-    func throwMe() {
+struct Die {
+    var value: Int
+    
+    mutating func throwMe() {
         value = [1, 2, 3, 4, 5, 6].shuffled().first!
     }
 }
 
 class MahjongTable {
     
-    let dies = [Die(), Die()]
+    var dies = [Die(value: 1), Die(value: 1)]
     var seats: [MahjongTile.Wind] = [.east, .south, .west, .north] {
         didSet {
             isFull.send(seats.isEmpty)
@@ -205,16 +206,44 @@ class MahjongTable {
             }
         }
     }
+    //开始一局游戏
+    func startGame() {
+        //洗牌
+        tilesWall = shufflingTheTiles()
+        //掷骰子确定庄家
+        dies = throwDies()
+        dealerWind = confirmDealerByDies(dies)
+        //掷骰子确定抓牌位置
+        dies = throwDies()
+        //发牌
+        deal()
+    }
     
     //掷骰子
-    func throwDies() {
-        dies.forEach { (die) in
-            die.throwMe()
-        }
+    func throwDies() -> [Die] {
+        var die1 = Die(value: 1)
+        var die2 = Die(value: 1)
+        die1.throwMe()
+        die2.throwMe()
+        let dies = [die1, die2]
         print("骰子: \(dies[0].value) \(dies[1].value)")
+        return dies
     }
     //洗牌
-    func shufflingTheTiles() {
+    func shufflingTheTiles() -> [MahjongTile.Wind: [MahjongTile]] {
+        var tiles: [MahjongTile] = allTiles()
+        tiles = tiles.shuffled()
+        print("共 \(tiles.count) 张牌")
+        var tilesWall: [MahjongTile.Wind: [MahjongTile]] = [:]
+        for (i,wind) in MahjongTile.Wind.allCases.enumerated() {
+            let subtiles = tiles[i*28..<i*28+28]
+            tilesWall[wind] = [MahjongTile](subtiles)
+            print("\(wind) \(tilesWall[wind]!.count)张 \(tilesWall[wind]!)")
+        }
+        return tilesWall
+    }
+    //顺序排列的所有牌
+    func allTiles() -> [MahjongTile] {
         var tiles: [MahjongTile] = []
         for rank in MahjongTile.Rank.allCases {
             for i in 0..<9 {
@@ -222,26 +251,15 @@ class MahjongTable {
             }
         }
         tiles.append(contentsOf: [.dragon(.red), .dragon(.red), .dragon(.red), .dragon(.red)])
-        
-        tiles = tiles.shuffled()
-        
-        print("共 \(tiles.count) 张牌")
-        for tile in tiles {
-            print(tile)
-        }
-        
-        for (i,wind) in MahjongTile.Wind.allCases.enumerated() {
-            let subtiles = tiles[i*28..<i*28+28]
-            self.tilesWall[wind] = [MahjongTile](subtiles)
-            print("\(wind) \(self.tilesWall[wind]!.count)张 \(self.tilesWall[wind]!)")
-        }
+        return tiles
     }
+    
     //确定庄家Dealer
-    func confirmDealer() {
-        throwDies()
+    func confirmDealerByDies(_ dies: [Die]) -> MahjongTile.Wind {
         let diesValue = dies[0].value + dies[1].value
-        dealerWind = MahjongTile.Wind(diesValue%4)!
+        let dealerWind = MahjongTile.Wind(diesValue%4)!
         print("庄家: \(dealerWind)")
+        return dealerWind
     }
     
     //发牌
