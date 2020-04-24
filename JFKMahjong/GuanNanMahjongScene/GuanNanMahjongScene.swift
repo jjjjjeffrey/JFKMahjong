@@ -179,23 +179,46 @@ class GuanNanMahjongScene: JKScene {
             self?.updateFlowerTilesUI(wind: wind, count: count)
         }.store(in: &cancellables)
         
+        //碰牌
         table.pong.sink { [weak self] (pongWind, discardWind) in
             if pongWind == self?.gamer1.wind {
-                self?.showPoneButton()
+                self?.showContinueButton()
+                self?.showPongButton()
             } else if pongWind == self?.gamer2.wind {
-                self?.table.pong(pongWind)
+//                self?.table.pong(pongWind)
+                self?.table.continue(pongWind)
             } else if pongWind == self?.gamer3.wind {
-                self?.table.pong(pongWind)
+//                self?.table.pong(pongWind)
+                self?.table.continue(pongWind)
             } else if pongWind == self?.gamer4.wind {
-                self?.table.pong(pongWind)
+//                self?.table.pong(pongWind)
+                self?.table.continue(pongWind)
             }
         }.store(in: &cancellables)
         
-        table.poneTilesChanged.sink { [weak self] (wind, allTiles) in
-            self?.updatePoneTilesUI(wind: wind, allTiles: allTiles)
+        table.pongTilesChanged.sink { [weak self] (wind, allTiles) in
+            self?.updatePongTilesUI(wind: wind, allTiles: allTiles)
         }.store(in: &cancellables)
         
-        table.isEnd.sink { [weak self] in
+        //杠牌
+        table.kongOther.sink { [weak self] (kongWind, discardWind) in
+            if kongWind == self?.gamer1.wind {
+                self?.showContinueButton()
+                self?.showKongButton()
+            } else if kongWind == self?.gamer2.wind {
+                self?.table.kongOther(kongWind)
+            } else if kongWind == self?.gamer3.wind {
+                self?.table.kongOther(kongWind)
+            } else if kongWind == self?.gamer4.wind {
+                self?.table.kongOther(kongWind)
+            }
+        }.store(in: &cancellables)
+        
+        table.kongTilesChanged.sink { [weak self] (wind, allTiles) in
+            self?.updateKongOtherTilesUI(wind: wind, allTiles: allTiles)
+        }.store(in: &cancellables)
+        
+        table.isEnd.sink { in
             print("游戏结束")
         }.store(in: &cancellables)
     }
@@ -212,9 +235,19 @@ class GuanNanMahjongScene: JKScene {
         startGame()
     }
     
-    private func showPoneButton() {
-        poneButton.position = CGPoint(x: view!.width-poneButton.calculateAccumulatedFrame().width, y: myTileBottomBegin+poneButton.calculateAccumulatedFrame().height)
-        addChild(poneButton)
+    private func showPongButton() {
+        pongButton.position = CGPoint(x: view!.width-pongButton.calculateAccumulatedFrame().width, y: myTileBottomBegin+pongButton.calculateAccumulatedFrame().height)
+        addChild(pongButton)
+    }
+    
+    private func showKongButton() {
+        kongButton.position = CGPoint(x: view!.width-pongButton.calculateAccumulatedFrame().width-pongButton.calculateAccumulatedFrame().width, y: myTileBottomBegin+pongButton.calculateAccumulatedFrame().height)
+        addChild(kongButton)
+    }
+    
+    private func showContinueButton() {
+        continueButton.position = CGPoint(x: view!.width-pongButton.calculateAccumulatedFrame().width, y: myTileBottomBegin+pongButton.calculateAccumulatedFrame().height+continueButton.calculateAccumulatedFrame().height+10)
+        addChild(continueButton)
     }
     
     private func removeAllTilesNode() {
@@ -264,19 +297,53 @@ class GuanNanMahjongScene: JKScene {
         return b
     }()
     
-    private lazy var poneButton: JKButtonNode = {
+    private lazy var pongButton: JKButtonNode = {
         let b = JKButtonNode()
         b.setTitle("碰", for: .normal)
         b.clicked.sink { [weak self] button in
-            self?.pone()
-            self?.poneButton.removeFromParent()
+            self?.pong()
+            self?.pongButton.removeFromParent()
         }.store(in: &cancellables)
         return b
     }()
     
-    private func pone() {
+    private func pong() {
         if let wind = gamer1.wind {
             table.pong(wind)
+        }
+    }
+    
+    private lazy var kongButton: JKButtonNode = {
+        let b = JKButtonNode()
+        b.setTitle("杠", for: .normal)
+        b.clicked.sink { [weak self] button in
+            self?.kongOther()
+            self?.kongButton.removeFromParent()
+        }.store(in: &cancellables)
+        return b
+    }()
+    
+    private func kongOther() {
+        if let wind = gamer1.wind {
+            table.kongOther(wind)
+        }
+    }
+    
+    private lazy var continueButton: JKButtonNode = {
+        let b = JKButtonNode()
+        b.setTitle("过", for: .normal)
+        b.clicked.sink { [weak self] button in
+            self?.pongButton.removeFromParent()
+            self?.kongButton.removeFromParent()
+            self?.continueButton.removeFromParent()
+            self?.continue()
+        }.store(in: &cancellables)
+        return b
+    }()
+    
+    private func `continue`() {
+        if let wind = gamer1.wind {
+            table.continue(wind)
         }
     }
     
@@ -1040,7 +1107,7 @@ class GuanNanMahjongScene: JKScene {
     }
     
     //更新碰牌UI
-    private func updatePoneTilesUI(wind: MahjongTile.Wind, allTiles: [[MahjongTile]]) {
+    private func updatePongTilesUI(wind: MahjongTile.Wind, allTiles: [[MahjongTile]]) {
         if wind == gamer1.wind?.previous().previous() {
             //对家
             topPoneTileNodes.forEach { (node) in
@@ -1106,6 +1173,11 @@ class GuanNanMahjongScene: JKScene {
                 }
             }
         }
+    }
+    
+    //更新外杠牌UI
+    private func updateKongOtherTilesUI(wind: MahjongTile.Wind, allTiles: [[MahjongTile]]) {
+        #warning("缺少实现")
     }
     
     private func activeTile(_ button: JKButtonNode) {
