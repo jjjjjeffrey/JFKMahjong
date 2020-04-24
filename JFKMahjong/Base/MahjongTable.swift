@@ -10,11 +10,27 @@ import Foundation
 import Combine
 import SwifterSwift
 
-struct Die {
+struct Die: Comparable {
     var value: Int
     
     mutating func throwMe() {
         value = [1, 2, 3, 4, 5, 6].shuffled().first!
+    }
+    
+    static func < (lhs: Self, rhs: Self) -> Bool {
+        return lhs.value < rhs.value
+    }
+
+    static func <= (lhs: Self, rhs: Self) -> Bool {
+        return lhs.value <= rhs.value
+    }
+
+    static func >= (lhs: Self, rhs: Self) -> Bool {
+        return lhs.value >= rhs.value
+    }
+
+    static func > (lhs: Self, rhs: Self) -> Bool {
+        return lhs.value > rhs.value
     }
 }
 
@@ -268,7 +284,7 @@ class MahjongTable {
     func deal() {
         
         let minDieValue = dies.min { (die1, die2) -> Bool in
-            die1.value < die2.value
+            die1 < die2
         }.map { (die) -> Int in
             return die.value
         }!
@@ -517,7 +533,7 @@ class MahjongTable {
         for wind in winds {
             let tiles = getTiles(wind)
             let tilesForPone = tiles.filter { (t) -> Bool in
-                tile.sortValue == t.sortValue
+                tile == t
             }
             //手牌有两张相同的牌说明可以碰牌
             if tilesForPone.count == 2 {
@@ -547,7 +563,7 @@ class MahjongTable {
         //从碰牌方手牌中找出要碰的牌
         let tiles = getTiles(wind)
         var tilesForPong = tiles.filter { (t) -> Bool in
-            pongTile.sortValue == t.sortValue
+            pongTile == t
         }
         tilesForPong.append(pongTile)
         //删除手牌中要碰的牌
@@ -589,7 +605,7 @@ class MahjongTable {
         for wind in winds {
             let tiles = getTiles(wind)
             let tilesForPone = tiles.filter { (t) -> Bool in
-                tile.sortValue == t.sortValue
+                tile == t
             }
             //手牌有三张相同的牌说明可以杠牌
             if tilesForPone.count == 3 {
@@ -618,7 +634,7 @@ class MahjongTable {
         //从杠牌方手牌中找出要杠的牌
         let tiles = getTiles(wind)
         var tilesForKong = tiles.filter { (t) -> Bool in
-            koneTile.sortValue == t.sortValue
+            koneTile == t
         }
         tilesForKong.append(koneTile)
         //删除手牌中要碰的牌
@@ -645,19 +661,19 @@ class MahjongTable {
         switch wind {
         case .east:
             eastTiles.removeAll { (t) -> Bool in
-                tile.sortValue == t.sortValue
+                tile == t
             }
         case .south:
             southTiles.removeAll { (t) -> Bool in
-                tile.sortValue == t.sortValue
+                tile == t
             }
         case .west:
             westTiles.removeAll { (t) -> Bool in
-                tile.sortValue == t.sortValue
+                tile == t
             }
         case .north:
             northTiles.removeAll { (t) -> Bool in
-                tile.sortValue == t.sortValue
+                tile == t
             }
         }
     }

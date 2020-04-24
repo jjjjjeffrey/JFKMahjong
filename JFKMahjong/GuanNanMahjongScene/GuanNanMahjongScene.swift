@@ -302,7 +302,6 @@ class GuanNanMahjongScene: JKScene {
         b.setTitle("碰", for: .normal)
         b.clicked.sink { [weak self] button in
             self?.pong()
-            self?.pongButton.removeFromParent()
         }.store(in: &cancellables)
         return b
     }()
@@ -311,6 +310,8 @@ class GuanNanMahjongScene: JKScene {
         if let wind = gamer1.wind {
             table.pong(wind)
         }
+        pongButton.removeFromParent()
+        continueButton.removeFromParent()
     }
     
     private lazy var kongButton: JKButtonNode = {
@@ -318,7 +319,6 @@ class GuanNanMahjongScene: JKScene {
         b.setTitle("杠", for: .normal)
         b.clicked.sink { [weak self] button in
             self?.kongOther()
-            self?.kongButton.removeFromParent()
         }.store(in: &cancellables)
         return b
     }()
@@ -327,6 +327,8 @@ class GuanNanMahjongScene: JKScene {
         if let wind = gamer1.wind {
             table.kongOther(wind)
         }
+        kongButton.removeFromParent()
+        continueButton.removeFromParent()
     }
     
     private lazy var continueButton: JKButtonNode = {

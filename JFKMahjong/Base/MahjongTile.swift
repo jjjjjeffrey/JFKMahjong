@@ -11,7 +11,7 @@ import Foundation
 extension Sequence where Element == MahjongTile {
     func sort() -> [Element] {
         return sorted { (tile1, tile2) -> Bool in
-            return tile1.sortValue < tile2.sortValue
+            return tile1 < tile2
         }
     }
 }
@@ -298,4 +298,20 @@ enum MahjongTile: CustomStringConvertible {
     }
 }
 
-extension MahjongTile: Equatable {}
+extension MahjongTile: Comparable {
+    static func < (lhs: Self, rhs: Self) -> Bool {
+        return lhs.sortValue < rhs.sortValue
+    }
+
+    static func <= (lhs: Self, rhs: Self) -> Bool {
+        return lhs.sortValue <= rhs.sortValue
+    }
+
+    static func >= (lhs: Self, rhs: Self) -> Bool {
+        return lhs.sortValue >= rhs.sortValue
+    }
+
+    static func > (lhs: Self, rhs: Self) -> Bool {
+        return lhs.sortValue > rhs.sortValue
+    }
+}

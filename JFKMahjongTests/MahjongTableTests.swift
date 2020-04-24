@@ -85,6 +85,10 @@ class MahjongTableTests: XCTestCase {
         dies = [Die(value: 1), Die(value: 5)]
         dealerWind = table.confirmDealerByDies(dies)
         XCTAssertEqual(dealerWind, .west)
+        
+        dies = [Die(value: 2), Die(value: 3)]
+        dealerWind = table.confirmDealerByDies(dies)
+        XCTAssertEqual(dealerWind, .south)
     }
 
     func testPerformanceExample() throws {
