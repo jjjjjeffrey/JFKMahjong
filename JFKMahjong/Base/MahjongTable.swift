@@ -232,7 +232,7 @@ class MahjongTable {
         //掷骰子确定抓牌位置
         dies = throwDies()
         //发牌
-        deal()
+        dealByDies(dies)
     }
     
     //掷骰子
@@ -281,26 +281,74 @@ class MahjongTable {
     //发牌
     //发牌规则：比如骰子3、5，从庄家开始顺时针数到3的位置牌墙，从牌墙右手边留3*4张牌开始抓牌
     //骰子5、6，从庄家开始顺时针数到5的位置牌墙，从牌墙右手边留5*4张牌开始抓牌
-    func deal() {
+    func dealByDies(_ dies: [Die]) {
+        //确定起始抓牌牌墙
+        let beginSite = getDrawBeginningSiteByDies(dies, dealer: dealerWind)
+        print("起始牌墙: \(beginSite)")
         
+        //排序要抓的牌
+        var tilesForDraw = getTilesForDrawByDies(dies, beginSite: beginSite, tilesWall: tilesWall)
+        print("待抓牌\(tilesForDraw.count)张：\(tilesForDraw)")
+        
+        //尾部留8张牌
+        tailTiles = [MahjongTile](tilesForDraw[tilesForDraw.endIndex-8..<tilesForDraw.endIndex])
+        print("尾部留8张牌: \(tailTiles)")
+        
+        tilesForDraw = tilesForDraw.dropLast(8)
+        print("剩余待抓牌\(tilesForDraw.count)张：\(tilesForDraw)")
+        
+        //抓4圈，前3圈每人依次抓4张，最后一圈庄家抓2张，其他人抓1张，庄家14张，其他人13张
+        let secondUser = dealerWind.next()
+        let thirdUser = secondUser.next()
+        let fourthUser = thirdUser.next()
+        //抓牌顺序
+        let winds = [dealerWind, secondUser, thirdUser, fourthUser]
+        
+        startTiles = getStartTiles(&tilesForDraw, winds: winds)
+        let dealResult = """
+        发牌结果: \r
+        \(dealerWind)\(startTiles[dealerWind]!)\r
+        \(secondUser)\(startTiles[secondUser]!)\r
+        \(thirdUser)\(startTiles[thirdUser]!)\r
+        \(fourthUser)\(startTiles[fourthUser]!)\r
+        """
+        print(dealResult)
+        tilesRemaining = tilesForDraw
+        print("剩余待摸牌\(tilesRemaining.count)张: \(tilesRemaining)")
+        
+        //补花
+        flowerSupplement()
+
+        currentTurnWind = dealerWind
+        takeTurns.send((dealerWind, false))
+    }
+    
+    //根据骰子确定起始抓牌位置
+    func getDrawBeginningSiteByDies(_ dies: [Die], dealer: MahjongTile.Wind) -> MahjongTile.Wind {
         let minDieValue = dies.min { (die1, die2) -> Bool in
             die1 < die2
         }.map { (die) -> Int in
             return die.value
         }!
         
-        //确定起始抓牌牌墙
-        var beginTilesWallWind : MahjongTile.Wind = dealerWind
+        //从庄家位置顺时针数
+        var site = dealer
         for _ in 0..<minDieValue-1 {
-            beginTilesWallWind = beginTilesWallWind.previous()
+            site = site.previous()
         }
-        
-        print("起始牌墙: \(beginTilesWallWind)")
-        
+        return site
+    }
+    //根据骰子和开始位置给出排序后的牌
+    func getTilesForDrawByDies(_ dies: [Die], beginSite: MahjongTile.Wind, tilesWall: [MahjongTile.Wind: [MahjongTile]]) -> [MahjongTile] {
+        let minDieValue = dies.min { (die1, die2) -> Bool in
+            die1 < die2
+        }.map { (die) -> Int in
+            return die.value
+        }!
         //抓牌起始留牌数
         let keepCount = minDieValue*4
         //待抓的牌
-        var currentTilesWallWind = beginTilesWallWind
+        var currentTilesWallWind = beginSite
         var currentTilesWall = tilesWall[currentTilesWallWind]!
         var currentTiles: [MahjongTile] = []
         for i in 0..<4 {
@@ -312,60 +360,37 @@ class MahjongTable {
             currentTilesWallWind = currentTilesWallWind.previous()
             currentTilesWall = tilesWall[currentTilesWallWind]!
         }
-        currentTiles.append(contentsOf: tilesWall[beginTilesWallWind]![0..<keepCount])
-        print("待抓牌\(currentTiles.count)张：\(currentTiles)")
-        
-        //尾部留8张牌
-        tailTiles = [MahjongTile](currentTiles[currentTiles.endIndex-8..<currentTiles.endIndex])
-        print("尾部留8张牌: \(tailTiles)")
-        
-        currentTiles = currentTiles.dropLast(8)
-        print("剩余待抓牌\(currentTiles.count)张：\(currentTiles)")
-        
-        //抓4圈，前3圈每人依次抓4张，最后一圈庄家抓2张，其他人抓1张，庄家14张，其他人13张
-        let secondUser = dealerWind.next()
-        let thirdUser = secondUser.next()
-        let fourthUser = thirdUser.next()
-        //抓牌顺序
-        let winds = [dealerWind, secondUser, thirdUser, fourthUser]
+        currentTiles.append(contentsOf: tilesWall[beginSite]![0..<keepCount])
+        return currentTiles
+    }
+    
+    //分配起始手牌
+    func getStartTiles(_ tilesForDraw: inout [MahjongTile], winds: [MahjongTile.Wind]) -> [MahjongTile.Wind: [MahjongTile]] {
+        var startTiles: [MahjongTile.Wind: [MahjongTile]] = [.east:[], .south:[], .west:[], .north:[]]
 
         for i in 0..<4 {
             if i < 3 {
                 for (j,wind) in winds.enumerated() {
-                    let tiles = currentTiles[i*16+j*4..<i*16+(j+1)*4]
+                    let tiles = tilesForDraw[i*16+j*4..<i*16+(j+1)*4]
                     startTiles[wind]?.append(contentsOf: tiles)
                     print("\(wind)拿牌 \(tiles)")
                 }
             } else {
                 //前三轮抓走48张牌
-                currentTiles = [MahjongTile](currentTiles[48..<currentTiles.endIndex])
+                tilesForDraw = [MahjongTile](tilesForDraw[48..<tilesForDraw.endIndex])
                 
                 for (i,wind) in winds.enumerated() {
                     if i == 0 {
-                        startTiles[wind]?.append(currentTiles.remove(at: 0))
-                        startTiles[wind]?.append(currentTiles.remove(at: 3))
+                        startTiles[wind]?.append(tilesForDraw.remove(at: 0))
+                        startTiles[wind]?.append(tilesForDraw.remove(at: 3))
                     } else {
-                        startTiles[wind]?.append(currentTiles.remove(at: 0))
+                        startTiles[wind]?.append(tilesForDraw.remove(at: 0))
                     }
                 }
             }
         }
-        let dealResult = """
-        发牌结果: \r
-        \(dealerWind)\(startTiles[dealerWind]!)\r
-        \(secondUser)\(startTiles[secondUser]!)\r
-        \(thirdUser)\(startTiles[thirdUser]!)\r
-        \(fourthUser)\(startTiles[fourthUser]!)\r
-        """
-        print(dealResult)
-        tilesRemaining = currentTiles
-        print("剩余待摸牌\(tilesRemaining.count)张: \(tilesRemaining)")
         
-        //补花
-        flowerSupplement()
-
-        currentTurnWind = dealerWind
-        takeTurns.send((dealerWind, false))
+        return startTiles
     }
     
     //补花
