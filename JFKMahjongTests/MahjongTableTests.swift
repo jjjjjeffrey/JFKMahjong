@@ -149,7 +149,7 @@ class MahjongTableTests: XCTestCase {
                 tiles.append(contentsOf: windTiles)
             }
         }
-        tiles = tiles.sort()
+        tiles = tiles.sorted()
         XCTAssertEqual(tiles, allTiles)
     }
     
@@ -212,6 +212,43 @@ class MahjongTableTests: XCTestCase {
         let startTiles = table.getStartTiles(&tilesForDraw, winds: winds)
         XCTAssertEqual(startTiles, self.startTiles)
         XCTAssertEqual(tilesForDraw, tilesRemainingAfterDrawBeginning)
+    }
+    
+    func testFlowerSupplementForTiles() throws {
+        var tiles: [MahjongTile] = [
+            .rank(1, .character), .rank(2, .character), .rank(3, .character),
+            .rank(1, .bamboo), .rank(2, .bamboo), .rank(3, .bamboo),
+            .rank(1, .dot), .rank(2, .dot), .rank(3, .dot),
+            .dragon(.red), .dragon(.red), .rank(7, .bamboo), .rank(9, .bamboo)
+        ]
+        
+        var drawFrom: [MahjongTile] = [
+            .rank(5, .character), .rank(6, .character), .rank(7, .character), .rank(8, .character),
+            .rank(6, .bamboo), .rank(7, .bamboo), .rank(8, .bamboo), .rank(9, .bamboo)
+        ]
+        
+        var flowerCount = 0
+        
+        table.flowerSupplementForTiles(&tiles, drawFrom: &drawFrom, flowerCount: &flowerCount)
+        
+        let tilesAfter: [MahjongTile] = [
+            .rank(1, .character), .rank(2, .character), .rank(3, .character),
+            .rank(1, .bamboo), .rank(2, .bamboo), .rank(3, .bamboo),
+            .rank(1, .dot), .rank(2, .dot), .rank(3, .dot),
+            .rank(7, .bamboo), .rank(9, .bamboo), .rank(9, .bamboo), .rank(8, .bamboo)
+        ]
+        
+        let drawFromAfter: [MahjongTile] = [
+            .rank(5, .character), .rank(6, .character), .rank(7, .character), .rank(8, .character),
+            .rank(6, .bamboo), .rank(7, .bamboo)
+        ]
+        
+        let flowerCountAfter = 2
+        
+        XCTAssertEqual(tiles, tilesAfter)
+        XCTAssertEqual(drawFrom, drawFromAfter)
+        XCTAssertEqual(flowerCount, flowerCountAfter)
+        
     }
 
     func testPerformanceExample() throws {

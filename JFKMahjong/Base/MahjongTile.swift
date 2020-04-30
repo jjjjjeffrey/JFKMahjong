@@ -8,14 +8,6 @@
 
 import Foundation
 
-extension Sequence where Element == MahjongTile {
-    func sort() -> [Element] {
-        return sorted { (tile1, tile2) -> Bool in
-            return tile1 < tile2
-        }
-    }
-}
-
 enum MahjongTile: CustomStringConvertible {
     //数牌
     case rank(Int, Rank)

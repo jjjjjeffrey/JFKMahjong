@@ -70,10 +70,10 @@ class MahjongTable {
     //起始手牌
     private var startTiles: [MahjongTile.Wind: [MahjongTile]] = [.east:[], .south:[], .west:[], .north:[]] {
         didSet {
-            eastTiles = startTiles[.east]?.sort() ?? []
-            southTiles = startTiles[.south]?.sort() ?? []
-            westTiles = startTiles[.west]?.sort() ?? []
-            northTiles = startTiles[.north]?.sort() ?? []
+            eastTiles = startTiles[.east]?.sorted() ?? []
+            southTiles = startTiles[.south]?.sorted() ?? []
+            westTiles = startTiles[.west]?.sorted() ?? []
+            northTiles = startTiles[.north]?.sorted() ?? []
         }
     }
     
@@ -407,22 +407,31 @@ class MahjongTable {
     }
     
     func flowerSupplementForWind(_ wind: MahjongTile.Wind) {
+        print("[\(wind) 补花]")
         switch wind {
         case .east:
-            eastTiles = flowerSupplementForWind(wind, tiles: eastTiles).sort()
+            flowerSupplementForTiles(&eastTiles, drawFrom: &tailTiles, flowerCount: &eastFlowerTilesCount)
+            eastTiles.sort()
         case .south:
-            southTiles = flowerSupplementForWind(wind, tiles: southTiles).sort()
+            flowerSupplementForTiles(&southTiles, drawFrom: &tailTiles, flowerCount: &southFlowerTilesCount)
+            southTiles.sort()
         case .west:
-            westTiles = flowerSupplementForWind(wind, tiles: westTiles).sort()
+            flowerSupplementForTiles(&westTiles, drawFrom: &tailTiles, flowerCount: &westFlowerTilesCount)
+            westTiles.sort()
         case .north:
-            northTiles = flowerSupplementForWind(wind, tiles: northTiles).sort()
+            flowerSupplementForTiles(&northTiles, drawFrom: &tailTiles, flowerCount: &northFlowerTilesCount)
+            northTiles.sort()
         }
     }
     
-    private func flowerSupplementForWind(_ wind: MahjongTile.Wind, tiles: [MahjongTile]) -> [MahjongTile] {
-        print("[\(wind) 补花]")
-        var tilesWithoutDragon = tiles
-        tilesWithoutDragon.removeAll { (tile) -> Bool in
+    //tiles: 需要补花的手牌
+    //drawFrom: 补花要抓的牌
+    //flowerCount: 用于更新的花牌数量
+    func flowerSupplementForTiles(_ tiles: inout [MahjongTile], drawFrom: inout [MahjongTile], flowerCount: inout Int) {
+        //补花前牌数量
+        let originalCount = tiles.count
+        //去掉花牌
+        tiles.removeAll { (tile) -> Bool in
             switch tile {
             case .dragon:
                 return true
@@ -430,31 +439,21 @@ class MahjongTable {
                 return false
             }
         }
-        let countForSupplement = tiles.count - tilesWithoutDragon.count
-        if countForSupplement > 0 {
-            switch wind {
-            case .east:
-                eastFlowerTilesCount += countForSupplement
-            case .south:
-                southFlowerTilesCount += countForSupplement
-            case .west:
-                westFlowerTilesCount += countForSupplement
-            case .north:
-                northFlowerTilesCount += countForSupplement
-            }
-        }
+        //花牌数量
+        let countForSupplement = originalCount - tiles.count
+        flowerCount += countForSupplement
+        
         for _ in 0..<countForSupplement {
-            let supplementTile = tailTiles.removeLast()
-            tilesWithoutDragon.append(supplementTile)
+            let supplementTile = drawFrom.removeLast()
+            tiles.append(supplementTile)
             print("[补花 \(supplementTile)]")
             switch supplementTile {
             case .dragon:
-                tilesWithoutDragon = flowerSupplementForWind(wind, tiles: tilesWithoutDragon)
+                flowerSupplementForTiles(&tiles, drawFrom: &drawFrom, flowerCount: &flowerCount)
             default:
                  break
             }
         }
-        return tilesWithoutDragon
     }
     
     //获取手牌
@@ -504,19 +503,19 @@ class MahjongTable {
         switch wind {
         case .east:
             tile = eastTiles.remove(at: tileIndex)
-            eastTiles = eastTiles.sort()
+            eastTiles = eastTiles.sorted()
             eastDiscardedTiles.append(tile)
         case .south:
             tile = southTiles.remove(at: tileIndex)
-            southTiles = southTiles.sort()
+            southTiles = southTiles.sorted()
             southDiscardedTiles.append(tile)
         case .west:
             tile = westTiles.remove(at: tileIndex)
-            westTiles = westTiles.sort()
+            westTiles = westTiles.sorted()
             westDiscardedTiles.append(tile)
         case .north:
             tile = northTiles.remove(at: tileIndex)
-            northTiles = northTiles.sort()
+            northTiles = northTiles.sorted()
             northDiscardedTiles.append(tile)
         }
         print("[\(wind)出牌] \(tile)")
